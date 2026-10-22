@@ -220,3 +220,4 @@ __marimo__/
 .streamlit/secrets.toml
 
 hint.txt
+mermaid_files/
