@@ -12,6 +12,8 @@ class Settings(BaseSettings):
 
     app_name: str
     debug: bool
+    app_host: str
+    app_port: int
 
     db_user: str
     db_password: str

@@ -3,10 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.features import auto_register_routers
 from app.config.config import settings
+from app.config.logging_config import setup_logging
+import structlog
 
 
 def init_app() -> FastAPI:
     app = FastAPI(title=settings.app_name, debug=settings.debug)
+
+    setup_logging()
 
     app.add_middleware(
         CORSMiddleware,
@@ -23,4 +27,8 @@ def init_app() -> FastAPI:
 
 if __name__ == "__main__":
     app = init_app()
-    uvicorn.run(app, host="127.0.0.1", port=8001)
+
+    logger = structlog.get_logger(__name__)
+    logger.info(f"Сервер запущен, {settings.app_host}:{settings.app_port}")
+
+    uvicorn.run(app, host=settings.app_host, port=settings.app_port)
