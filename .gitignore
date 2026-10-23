@@ -221,3 +221,9 @@ __marimo__/
 
 hint.txt
 mermaid_files/
+
+docs/build/
+.doctrees/
+*.pyc
+*.pyo
+*.pyd
