@@ -57,11 +57,11 @@ class Day(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     date: Mapped[date] = mapped_column(Date, nullable=False)
-    marshall_id: Mapped[int] = mapped_column(
+    marshall_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL")
     )
 
-    marshall: Mapped["User"] = relationship(
+    marshall: Mapped["User | None"] = relationship(
         back_populates="work_days", foreign_keys=[marshall_id]
     )
     available_hours: Mapped[List["AvailableHours"]] = relationship(

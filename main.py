@@ -7,7 +7,7 @@ from app.config.logging_config import setup_logging
 import structlog
 
 
-def init_app() -> FastAPI:
+def create_app() -> FastAPI:
     app = FastAPI(title=settings.app_name, debug=settings.debug)
 
     setup_logging()
@@ -26,9 +26,12 @@ def init_app() -> FastAPI:
 
 
 if __name__ == "__main__":
-    app = init_app()
-
     logger = structlog.get_logger(__name__)
     logger.info(f"Сервер запущен, {settings.app_host}:{settings.app_port}")
-
-    uvicorn.run(app, host=settings.app_host, port=settings.app_port)
+    
+    uvicorn.run(
+        "main:create_app",
+        factory=True,
+        host=settings.app_host,
+        port=settings.app_port,
+    )

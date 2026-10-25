@@ -1,5 +1,5 @@
-from pydantic import PostgresDsn, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
 
 
 class Settings(BaseSettings):
@@ -25,10 +25,14 @@ class Settings(BaseSettings):
 
     @property
     def sqlalchemy_database_uri(self) -> str:
-        return (
-            f"{self.db_url_prefix}{self.db_user}:{self.db_password}"
-            f"@{self.db_address}:{self.db_port}/{self.db_name}"
-        )
+        return URL.create(
+            drivername=self.db_url_prefix.removesuffix("://"),
+            username=self.db_user,
+            password=self.db_password,
+            host=self.db_address,
+            port=int(self.db_port),
+            database=self.db_name,
+        ).render_as_string(hide_password=False)
 
 
 settings = Settings()
