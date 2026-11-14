@@ -1,14 +1,11 @@
 from pwdlib import PasswordHash
 from starlette.concurrency import run_in_threadpool
 
+from app.consts.exceptions import LoginAlreadyExistsError
 from app.repositories.user_repository import UserRepository
 
-
 password_hasher = PasswordHash.recommended()
-
-
-class LoginAlreadyExistsError(Exception):
-    pass
+DUMMY_PASSWORD_HASH = password_hasher.hash("unused-login-password")
 
 
 class UserService:
@@ -23,3 +20,13 @@ class UserService:
         if user_id is None:
             raise LoginAlreadyExistsError
         return user_id
+
+    async def authenticate(self, email: str, password: str) -> int | None:
+        user = await self.repository.get_by_email(email)
+        stored_hash = user.password_hash if user is not None else DUMMY_PASSWORD_HASH
+        password_matches = await run_in_threadpool(
+            password_hasher.verify, password, stored_hash
+        )
+        if user is None or not password_matches:
+            return None
+        return user.id

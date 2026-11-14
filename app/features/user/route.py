@@ -50,6 +50,25 @@ async def signup_classic(
 
 
 @router.post("/api/v1/sessions")
-async def login_classic(payload: LoginPayload) -> TokenResponse:
-    """Logging in with login and password"""
-    return payload
+async def login_classic(
+    payload: LoginPayload,
+    service: Annotated[UserService, Depends(get_user_service)],
+) -> TokenResponse:
+    """Log in with an email and password."""
+    secret_key = settings.jwt_secret_key
+    if secret_key is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Login is unavailable",
+        )
+
+    user_id = await service.authenticate(payload.login, payload.password.get_secret_value())
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+
+    return TokenResponse(
+        jwt_token=create_access_token(user_id, secret_key=secret_key.get_secret_value())
+    )

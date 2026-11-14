@@ -11,6 +11,10 @@ class UserRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
+    async def get_by_email(self, email: str) -> User | None:
+        result = await self.session.execute(select(User).where(User.email == email))
+        return result.scalar_one_or_none()
+
     async def create_customer(self, *, login: str, password_hash: str) -> int | None:
         role_id = select(Role.id).where(Role.name == "customer").scalar_subquery()
         statement = (
