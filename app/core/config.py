@@ -1,3 +1,4 @@
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -14,6 +15,7 @@ class Settings(BaseSettings):
     debug: bool
     app_host: str
     app_port: int
+    jwt_secret_key: SecretStr | None = Field(default=None, min_length=32)
 
     db_user: str
     db_password: str
