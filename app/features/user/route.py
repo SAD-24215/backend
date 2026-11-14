@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .schemas import LoginPayload
+from .schemas import LoginPayload, TokenResponse
 
 router = APIRouter(tags=["user"])
 
