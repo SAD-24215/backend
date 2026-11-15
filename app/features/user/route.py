@@ -44,7 +44,7 @@ async def signup_classic(
         )
 
     try:
-        user_id = await service.signup(payload.login, payload.password.get_secret_value())
+        identity = await service.signup(payload.login, payload.password.get_secret_value())
     except LoginAlreadyExistsError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -52,7 +52,8 @@ async def signup_classic(
         ) from exc
 
     return TokenResponse(
-        jwt_token=create_access_token(user_id, secret_key=secret_key.get_secret_value())
+        jwt_token=create_access_token(identity.id, secret_key=secret_key.get_secret_value()),
+        system_id=identity.system_id,
     )
 
 
@@ -80,13 +81,14 @@ async def login_classic(
             detail="Login is unavailable",
         )
 
-    user_id = await service.authenticate(payload.login, payload.password.get_secret_value())
-    if user_id is None:
+    identity = await service.authenticate(payload.login, payload.password.get_secret_value())
+    if identity is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
 
     return TokenResponse(
-        jwt_token=create_access_token(user_id, secret_key=secret_key.get_secret_value())
+        jwt_token=create_access_token(identity.id, secret_key=secret_key.get_secret_value()),
+        system_id=identity.system_id,
     )

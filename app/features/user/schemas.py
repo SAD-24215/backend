@@ -20,3 +20,4 @@ class SignupPayload(BaseModel):
 
 class TokenResponse(BaseModel):
     jwt_token: str
+    system_id: str
