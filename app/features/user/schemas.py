@@ -1,5 +1,5 @@
 from email_validator import validate_email
-from pydantic import BaseModel, Field, SecretStr, field_validator
+from pydantic import UUID4, BaseModel, Field, SecretStr, field_validator
 
 
 class LoginPayload(BaseModel):
@@ -7,7 +7,11 @@ class LoginPayload(BaseModel):
     password: SecretStr = Field(min_length=1, max_length=1024)
 
 
-class SignupPayload(BaseModel):
+class SystemIdPayload(BaseModel):
+    system_id: UUID4
+
+
+class SignupPayload(SystemIdPayload):
     login: str = Field(min_length=1, max_length=100, pattern=r"^[^\x00]+$")
     password: SecretStr = Field(min_length=1, max_length=1024)
 
