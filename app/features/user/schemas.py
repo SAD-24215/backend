@@ -1,3 +1,5 @@
+from typing import Optional
+
 from email_validator import validate_email
 from pydantic import UUID4, BaseModel, Field, SecretStr, field_validator
 
@@ -11,6 +13,10 @@ class SystemIdPayload(BaseModel):
     system_id: UUID4
 
 
+class TokenPayload(BaseModel):
+    refresh_token: SecretStr = Field(min_length=1, max_length=256)
+
+
 class SignupPayload(SystemIdPayload):
     login: str = Field(min_length=1, max_length=100, pattern=r"^[^\x00]+$")
     password: SecretStr = Field(min_length=1, max_length=1024)
@@ -22,6 +28,10 @@ class SignupPayload(SystemIdPayload):
         return login
 
 
-class TokenResponse(BaseModel):
-    jwt_token: str
+class RefreshAccessTokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+
+
+class TokenResponse(RefreshAccessTokenResponse):
     system_id: str
