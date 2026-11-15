@@ -6,14 +6,17 @@ import uvicorn
 from app.features import auto_register_routers
 from app.core.config import settings
 from app.core.logging import setup_logging
+from app.db.redis import create_redis_client
 from app.db.session import engine
 import structlog
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI):
+async def lifespan(app: FastAPI):
     try:
-        yield
+        async with create_redis_client() as redis_client:
+            app.state.redis = redis_client
+            yield
     finally:
         await engine.dispose()
 

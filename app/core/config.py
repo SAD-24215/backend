@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     db_container: str
     db_url_prefix: str
 
+    redis_port: int = Field(default=6379, ge=1, le=65535)
+    redis_password: SecretStr | None = None
+
     @property
     def sqlalchemy_database_uri(self) -> str:
         return URL.create(
