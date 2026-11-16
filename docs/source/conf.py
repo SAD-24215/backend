@@ -23,8 +23,7 @@ dotenv_path = os.path.join(root_dir, '.env')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
-sys.path.insert(0, os.path.abspath('../../app'))
-sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, root_dir)
 
 extensions = [
     'sphinx.ext.autodoc',

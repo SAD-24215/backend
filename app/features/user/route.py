@@ -1,3 +1,5 @@
+"""Эндпоинты регистрации, входа и обновления токенов."""
+
 from math import ceil
 from time import time
 from typing import Annotated
@@ -17,7 +19,7 @@ from app.consts.exceptions import (
 from app.core.config import settings
 from app.core.jwt_tokens import (
     create_access_token,
-    issue_refresh_token,
+    get_refresh_token,
     rotate_refresh_token,
 )
 from app.db.redis import get_redis
@@ -43,21 +45,33 @@ RedisClient = Annotated[Redis, Depends(get_redis)]
 def get_user_repository(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserRepository:
+    """Создаёт репозиторий пользователей с сессией БД текущего запроса."""
     return UserRepository(session)
 
 
 def get_user_service(
     repository: Annotated[UserRepository, Depends(get_user_repository)],
 ) -> UserService:
+    """Создаёт сервис пользователей с репозиторием текущего запроса."""
     return UserService(repository)
 
 
 async def token_response(
     identity: UserIdentity, secret_key: str, redis: Redis
 ) -> TokenResponse:
+    """Собирает пару токенов и системный ID в ответ для клиента.
+
+    Args:
+        identity: Внутренний и системный идентификаторы пользователя.
+        secret_key: Ключ подписи access-токена.
+        redis: Клиент для сохранения refresh-токена.
+
+    Raises:
+        HTTPException: HTTP 503 при ошибке Redis.
+    """
     access_token = create_access_token(identity.id, secret_key=secret_key)
     try:
-        refresh_token = await issue_refresh_token(redis, identity.id)
+        refresh_token = await get_refresh_token(redis, identity.id)
     except RedisError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -77,6 +91,14 @@ async def signup_classic(
     service: Annotated[UserService, Depends(get_user_service)],
     redis: RedisClient,
 ) -> TokenResponse:
+    """Привязывает email и пароль к существующему аккаунту по системному ID.
+
+    Returns:
+        Пара токенов и системный ID пользователя.
+
+    Raises:
+        HTTPException: HTTP 401 при неверном системном ID или HTTP 409 при конфликте.
+    """
     secret_key = settings.jwt_secret_key.get_secret_value()
 
     try:
@@ -103,6 +125,11 @@ async def signup_classic(
 
 
 async def limit_login_attempts(request: Request) -> None:
+    """Ограничивает вход пятью запросами в минуту на IP и маршрут.
+
+    Raises:
+        HTTPException: HTTP 429 с заголовком Retry-After при превышении лимита.
+    """
     client_ip = request.client.host if request.client else "unknown"
     if not login_limiter.hit(login_limit, request.url.path, client_ip):
         reset_time, _ = login_limiter.get_window_stats(
@@ -121,7 +148,11 @@ async def login_classic(
     service: Annotated[UserService, Depends(get_user_service)],
     redis: RedisClient,
 ) -> TokenResponse:
-    """Log in with an email and password."""
+    """Проверяет email и пароль и выдаёт пару токенов и системный ID.
+
+    Raises:
+        HTTPException: HTTP 401 при неверном email или пароле.
+    """
     secret_key = settings.jwt_secret_key.get_secret_value()
 
     identity = await service.authenticate(
@@ -142,6 +173,11 @@ async def login_with_id(
     service: Annotated[UserService, Depends(get_user_service)],
     redis: RedisClient,
 ) -> TokenResponse:
+    """Проверяет системный ID и выдаёт пару токенов.
+
+    Raises:
+        HTTPException: HTTP 401, если вход по указанному ID недоступен.
+    """
     secret_key = settings.jwt_secret_key.get_secret_value()
     identity = await service.authenticate_with_id(str(payload.system_id))
     if identity is None:
@@ -157,15 +193,28 @@ async def signup_with_id(
     service: Annotated[UserService, Depends(get_user_service)],
     redis: RedisClient,
 ) -> TokenResponse:
+    """Создаёт аккаунт без email и пароля.
+
+    Returns:
+        Пара токенов и новый системный ID.
+    """
     secret_key = settings.jwt_secret_key.get_secret_value()
     identity = await service.signup_with_id()
     return await token_response(identity, secret_key, redis)
 
 
 @router.post("/api/v1/tokens/refresh")
-async def get_refresh_token(
+async def get_refresh_token_route(
     payload: TokenPayload, redis: RedisClient
 ) -> RefreshAccessTokenResponse:
+    """Обменивает действующий одноразовый refresh-токен на новую пару.
+
+    Returns:
+        Access-токен и новый refresh-токен.
+
+    Raises:
+        HTTPException: HTTP 401 при недействительном refresh или HTTP 503 при ошибке Redis.
+    """
     secret_key = settings.jwt_secret_key.get_secret_value()
     try:
         rotated = await rotate_refresh_token(

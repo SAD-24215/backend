@@ -1,29 +1,21 @@
-config package
-==============
+Настройки и модели БД
+=====================
 
 Submodules
 ----------
 
-config.config module
---------------------
-
-.. automodule:: config.config
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-config.models module
---------------------
-
-.. automodule:: config.models
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
+app.core.config
 ---------------
 
-.. automodule:: config
+.. automodule:: app.core.config
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+app.db.models
+-------------
+
+.. automodule:: app.db.models
    :members:
    :show-inheritance:
    :undoc-members:

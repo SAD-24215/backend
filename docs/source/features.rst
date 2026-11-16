@@ -1,10 +1,12 @@
-features package
-================
+Маршруты
+=====================
 
-Module contents
----------------
-
-.. automodule:: features
+.. automodule:: app.features
    :members:
    :show-inheritance:
    :undoc-members:
+
+.. toctree::
+   :maxdepth: 1
+
+   user
