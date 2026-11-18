@@ -46,6 +46,11 @@ class UserService:
             system_id=system_id, login=login, password_hash=password_hash
         )
 
+    async def signup_without_id(self, login: str, password: str) -> UserIdentity:
+        """Создаёт аккаунт для входа по email и хеширует пароль перед записью."""
+        password_hash = await run_in_threadpool(password_hasher.hash, password)
+        return await self.repository.create_customer(login=login, password_hash=password_hash)
+
     async def signup_with_id(self) -> UserIdentity:
         """Создаёт аккаунт для входа по UUID без email и пароля.
 

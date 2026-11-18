@@ -1,7 +1,5 @@
 """Схемы запросов и ответов API авторизации."""
 
-from typing import Optional
-
 from email_validator import validate_email
 from pydantic import UUID4, BaseModel, Field, SecretStr, field_validator
 
@@ -38,16 +36,14 @@ class TokenPayload(BaseModel):
     refresh_token: SecretStr = Field(min_length=1, max_length=256)
 
 
-class SignupPayload(SystemIdPayload):
-    """Email и пароль для привязки к существующему аккаунту.
+class SignupPayload(LoginPayload):
+    """Email и пароль для регистрации или привязки к существующему аккаунту.
 
     Attributes:
-        login: Email для входа.
-        password: Пароль для входа.
+        system_id: Идентификатор существующего аккаунта, если нужно привязать данные.
     """
 
-    login: str = Field(min_length=1, max_length=100, pattern=r"^[^\x00]+$")
-    password: SecretStr = Field(min_length=1, max_length=1024)
+    system_id: UUID4 | None = None
 
     @field_validator("login")
     @classmethod

@@ -51,23 +51,49 @@ class UserRepository:
         result = await self.session.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
+    async def create_customer(self, *, login: str, password_hash: str) -> UserIdentity:
+        """Создаёт аккаунт для входа по email и паролю с новым системным UUID."""
+        validate_email(login, check_deliverability=False)
+        return await self._create_customer(
+            login=login, password_hash=password_hash, system_id_login_enabled=False
+        )
+
     async def create_customer_with_id(self) -> UserIdentity:
         """Создаёт аккаунт с ролью customer и новым UUID для входа.
 
         Returns:
             Внутренний и системный идентификаторы нового пользователя.
         """
+        return await self._create_customer(system_id_login_enabled=True)
+
+    async def _create_customer(
+        self,
+        *,
+        system_id_login_enabled: bool,
+        login: str | None = None,
+        password_hash: str | None = None,
+    ) -> UserIdentity:
         role_id = select(Role.id).where(Role.name == "customer").scalar_subquery()
         statement = (
             insert(User)
-            .values(system_id=str(uuid4()), role_id=role_id, system_id_login_enabled=True)
+            .values(
+                name=login,
+                email=login,
+                password_hash=password_hash,
+                system_id=str(uuid4()),
+                role_id=role_id,
+                system_id_login_enabled=system_id_login_enabled,
+            )
+            .on_conflict_do_nothing(index_elements=[User.email])
             .returning(User.id, User.system_id)
         )
 
         async with self.session.begin():
             result = await self.session.execute(statement)
-            row = result.one()
+            row = result.one_or_none()
 
+        if row is None:
+            raise LoginAlreadyExistsError
         return UserIdentity(id=row.id, system_id=row.system_id)
 
     async def get_by_system_id(self, system_id: str) -> UserIdentity | None:

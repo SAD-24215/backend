@@ -91,7 +91,7 @@ async def signup_classic(
     service: Annotated[UserService, Depends(get_user_service)],
     redis: RedisClient,
 ) -> TokenResponse:
-    """Привязывает email и пароль к существующему аккаунту по системному ID.
+    """Регистрирует новый аккаунт или привязывает email и пароль по системному ID.
 
     Returns:
         Пара токенов и системный ID пользователя.
@@ -100,11 +100,13 @@ async def signup_classic(
         HTTPException: HTTP 401 при неверном системном ID или HTTP 409 при конфликте.
     """
     secret_key = settings.jwt_secret_key.get_secret_value()
+    password = payload.password.get_secret_value()
 
     try:
-        identity = await service.signup(
-            payload.login, payload.password.get_secret_value(), str(payload.system_id)
-        )
+        if payload.system_id is None:
+            identity = await service.signup_without_id(payload.login, password)
+        else:
+            identity = await service.signup(payload.login, password, str(payload.system_id))
     except LoginAlreadyExistsError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

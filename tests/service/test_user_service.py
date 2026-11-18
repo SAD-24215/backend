@@ -153,3 +153,23 @@ async def test_authenticate_returns_identity_for_valid_credentials(
     user_service: UserService, registered_account: UserIdentity, email: str
 ) -> None:
     assert await user_service.authenticate(email, PASSWORD) == registered_account
+
+
+async def test_signup_without_id_creates_classic_account(
+    user_service: UserService, email: str
+) -> None:
+    account = await user_service.signup_without_id(email, PASSWORD)
+
+    assert isinstance(account, UserIdentity)
+    assert UUID(account.system_id).version == 4
+    assert await user_service.authenticate(email, PASSWORD) == account
+    assert await user_service.authenticate_with_id(account.system_id) is None
+
+
+async def test_signup_without_id_rejects_duplicate_email(
+    user_service: UserService, registered_account: UserIdentity, email: str
+) -> None:
+    with pytest.raises(LoginAlreadyExistsError):
+        await user_service.signup_without_id(email, WRONG_PASSWORD)
+
+    assert await user_service.authenticate(email, PASSWORD) == registered_account
