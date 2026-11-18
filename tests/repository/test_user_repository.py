@@ -4,6 +4,7 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.consts.exceptions import LoginAlreadyExistsError
 from app.db.models import User
 from app.repositories.user_repository import UserIdentity, UserRepository
 
@@ -35,7 +36,8 @@ async def test_get_by_email_returns_none_for_unknown_email(repository: UserRepos
 async def test_get_by_email_returns_user_for_known_email(
     repository: UserRepository, account: UserIdentity
 ) -> None:
-    email = f"{uuid4().hex}@example.com"
+    local_part = uuid4().hex
+    email = f"{local_part}@EXAMPLE.COM"
     assert await repository.set_classic_credentials(
         system_id=account.system_id, login=email, password_hash=PASSWORD_HASH
     ) == account
@@ -44,6 +46,22 @@ async def test_get_by_email_returns_user_for_known_email(
 
     assert isinstance(result, User)
     assert result.id == account.id
+    assert result.email == f"{local_part}@example.com"
+
+
+async def test_create_customer_rejects_equivalent_email(repository: UserRepository) -> None:
+    local_part = uuid4().hex
+    email = f"{local_part}@example.com"
+    identity = await repository.create_customer(
+        login=f"{local_part}@EXAMPLE.COM", password_hash=PASSWORD_HASH
+    )
+
+    with pytest.raises(LoginAlreadyExistsError):
+        await repository.create_customer(login=email, password_hash=PASSWORD_HASH)
+
+    result = await repository.get_by_email(email)
+    assert isinstance(result, User)
+    assert result.id == identity.id
     assert result.email == email
 
 

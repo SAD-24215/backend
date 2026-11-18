@@ -9,7 +9,10 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.consts.exceptions import ClassicCredentialsAlreadySetError, LoginAlreadyExistsError
+from app.consts.exceptions import (
+    ClassicCredentialsAlreadySetError,
+    LoginAlreadyExistsError,
+)
 from app.db.models import Role, User
 
 
@@ -33,6 +36,9 @@ class UserRepository:
         session: Асинхронная сессия SQLAlchemy для текущего запроса.
     """
 
+    def _normalize_email(self, email: str) -> str:
+        return validate_email(email, check_deliverability=False).normalized
+
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
@@ -43,17 +49,23 @@ class UserRepository:
             email: Адрес, сохранённый при регистрации.
 
         Returns:
-            Пользователь или ``None``, если адрес не передан или не найден.
+            Пользователь или ``None``, если адрес не передан, неверен или не найден.
         """
         if email is None:
             return None
 
-        result = await self.session.execute(select(User).where(User.email == email))
+        try:
+            normalized_email = self._normalize_email(email)
+        except EmailNotValidError:
+            return None
+
+        result = await self.session.execute(
+            select(User).where(User.email == normalized_email)
+        )
         return result.scalar_one_or_none()
 
     async def create_customer(self, *, login: str, password_hash: str) -> UserIdentity:
         """Создаёт аккаунт для входа по email и паролю с новым системным UUID."""
-        validate_email(login, check_deliverability=False)
         return await self._create_customer(
             login=login, password_hash=password_hash, system_id_login_enabled=False
         )
@@ -73,12 +85,13 @@ class UserRepository:
         login: str | None = None,
         password_hash: str | None = None,
     ) -> UserIdentity:
+        email = self._normalize_email(login) if login is not None else None
         role_id = select(Role.id).where(Role.name == "customer").scalar_subquery()
         statement = (
             insert(User)
             .values(
                 name=login,
-                email=login,
+                email=email,
                 password_hash=password_hash,
                 system_id=str(uuid4()),
                 role_id=role_id,
@@ -137,7 +150,7 @@ class UserRepository:
             return None
 
         try:
-            validate_email(login, check_deliverability=False)
+            email = self._normalize_email(login)
         except EmailNotValidError:
             return None
 
@@ -145,7 +158,10 @@ class UserRepository:
             async with self.session.begin():
                 result = await self.session.execute(
                     select(User)
-                    .where(User.system_id == system_id, User.system_id_login_enabled.is_(True))
+                    .where(
+                        User.system_id == system_id,
+                        User.system_id_login_enabled.is_(True),
+                    )
                     .with_for_update()
                 )
                 user = result.scalar_one_or_none()
@@ -155,7 +171,7 @@ class UserRepository:
                     raise ClassicCredentialsAlreadySetError
 
                 user.name = login
-                user.email = login
+                user.email = email
                 user.password_hash = password_hash
                 return UserIdentity(id=user.id, system_id=user.system_id)
         except IntegrityError as exc:
