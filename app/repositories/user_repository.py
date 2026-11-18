@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
+from email_validator import EmailNotValidError, validate_email
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
@@ -35,15 +36,18 @@ class UserRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def get_by_email(self, email: str) -> User | None:
+    async def get_by_email(self, email: str | None) -> User | None:
         """Ищет пользователя по email.
 
         Args:
             email: Адрес, сохранённый при регистрации.
 
         Returns:
-            Пользователь или ``None``, если адрес не найден.
+            Пользователь или ``None``, если адрес не передан или не найден.
         """
+        if email is None:
+            return None
+
         result = await self.session.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
@@ -86,7 +90,7 @@ class UserRepository:
         return UserIdentity(id=row.id, system_id=row.system_id)
 
     async def set_classic_credentials(
-        self, *, system_id: str, login: str, password_hash: str
+        self, *, system_id: str | None, login: str | None, password_hash: str | None
     ) -> UserIdentity | None:
         """Привязывает email и хеш пароля к аккаунту с входом по системному ID.
 
@@ -96,12 +100,21 @@ class UserRepository:
             password_hash: Хеш пароля для сохранения в базе.
 
         Returns:
-            Идентификаторы пользователя или ``None``, если подходящий аккаунт не найден.
+            Идентификаторы пользователя или ``None`` при отсутствии поля, неверном email
+            или отсутствии подходящего аккаунта.
 
         Raises:
             ClassicCredentialsAlreadySetError: Email или пароль уже привязан к аккаунту.
             LoginAlreadyExistsError: Email уже занят другим аккаунтом.
         """
+        if system_id is None or login is None or password_hash is None:
+            return None
+
+        try:
+            validate_email(login, check_deliverability=False)
+        except EmailNotValidError:
+            return None
+
         try:
             async with self.session.begin():
                 result = await self.session.execute(
