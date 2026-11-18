@@ -6,6 +6,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
+from alembic.util import CommandError
 
 from app.core.config import settings
 from app.db.models import Base
@@ -14,7 +15,15 @@ from app.db.models import Base
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", settings.sqlalchemy_database_uri.replace("%", "%%"))
+database = context.get_x_argument(as_dictionary=True).get("db", "main")
+if database == "test":
+    database_uri = settings.test_sqlalchemy_database_uri
+elif database == "main":
+    database_uri = settings.sqlalchemy_database_uri
+else:
+    raise CommandError("Параметр -x db должен иметь значение main или test")
+
+config.set_main_option("sqlalchemy.url", database_uri.replace("%", "%%"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

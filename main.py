@@ -1,14 +1,28 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.features import auto_register_routers
 from app.core.config import settings
 from app.core.logging import setup_logging
+from app.db.redis import create_redis_client
+from app.db.session import engine
 import structlog
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        async with create_redis_client() as redis_client:
+            app.state.redis = redis_client
+            yield
+    finally:
+        await engine.dispose()
+
+
 def create_app() -> FastAPI:
-    app = FastAPI(title=settings.app_name, debug=settings.debug)
+    app = FastAPI(title=settings.app_name, debug=settings.debug, lifespan=lifespan)
 
     setup_logging()
 

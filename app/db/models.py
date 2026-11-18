@@ -11,6 +11,7 @@ from sqlalchemy import (
     String,
     Time,
     UniqueConstraint,
+    false,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -32,10 +33,11 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(255))
-    email: Mapped[str] = mapped_column(String(255), unique=True)
+    name: Mapped[str | None] = mapped_column(String(255))
+    email: Mapped[str | None] = mapped_column(String(255), unique=True)
     system_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(255))
+    password_hash: Mapped[str | None] = mapped_column(String(255))
+    system_id_login_enabled: Mapped[bool] = mapped_column(Boolean, server_default=false())
     role_id: Mapped[int] = mapped_column(
         ForeignKey("roles.id", ondelete="RESTRICT"), nullable=False
     )
