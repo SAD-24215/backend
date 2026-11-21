@@ -24,8 +24,9 @@ from app.core.jwt_tokens import (
 )
 from app.db.redis import get_redis
 from app.db.session import get_session
-from app.repositories.user_repository import UserIdentity, UserRepository
+from app.repositories.user_repository import UserRepository
 from app.services.user_service import UserService
+from app.consts.dto import UserIdentity
 
 from .schemas import (
     LoginPayload,
@@ -106,7 +107,9 @@ async def signup_classic(
         if payload.system_id is None:
             identity = await service.signup_without_id(payload.login, password)
         else:
-            identity = await service.signup(payload.login, password, str(payload.system_id))
+            identity = await service.signup(
+                payload.login, password, str(payload.system_id)
+            )
     except LoginAlreadyExistsError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

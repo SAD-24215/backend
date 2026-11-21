@@ -1,20 +1,20 @@
-from pydantic import BaseModel, Field, SecretStr, field_validator
+from pydantic import BaseModel, Field
 
 
 class CartModel(BaseModel):
     name: str
+    description: str
     photo_path: str
     price: int
 
 
 class CartingData(BaseModel):
-    address: str = ""
-    price_list: list[CartModel] = []
-    rules: str = ""
+    address: str = Field(max_length=1000)
+    rules: str = Field(max_length=1000)
 
 
 class CartingResponse(CartingData):
-    pass
+    price_list: list[CartModel] = Field(default_factory=list)
 
 
 class CartingPayload(CartingData):

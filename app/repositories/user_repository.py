@@ -9,24 +9,12 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.consts.dto import UserIdentity
 from app.consts.exceptions import (
     ClassicCredentialsAlreadySetError,
     LoginAlreadyExistsError,
 )
 from app.db.models import Role, User
-
-
-@dataclass(frozen=True)
-class UserIdentity:
-    """Идентификаторы пользователя, которые нужны после регистрации или входа.
-
-    Attributes:
-        id: Внутренний ID пользователя в базе данных.
-        system_id: Системный UUID аккаунта.
-    """
-
-    id: int
-    system_id: str
 
 
 class UserRepository:

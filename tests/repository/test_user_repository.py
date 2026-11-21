@@ -4,9 +4,10 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.consts.dto import UserIdentity
 from app.consts.exceptions import LoginAlreadyExistsError
 from app.db.models import User
-from app.repositories.user_repository import UserIdentity, UserRepository
+from app.repositories.user_repository import UserRepository
 
 
 pytestmark = pytest.mark.asyncio

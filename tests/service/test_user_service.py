@@ -5,9 +5,10 @@ import pytest_asyncio
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.consts.dto import UserIdentity
 from app.consts.exceptions import LoginAlreadyExistsError
 from app.db.models import User
-from app.repositories.user_repository import UserIdentity, UserRepository
+from app.repositories.user_repository import UserRepository
 from app.services.user_service import UserService
 
 

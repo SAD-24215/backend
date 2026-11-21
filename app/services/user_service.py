@@ -4,7 +4,8 @@ from pwdlib import PasswordHash
 from sqlalchemy.exc import IntegrityError
 from starlette.concurrency import run_in_threadpool
 
-from app.repositories.user_repository import UserIdentity, UserRepository
+from app.consts.dto import UserIdentity
+from app.repositories.user_repository import UserRepository
 
 password_hasher = PasswordHash.recommended()
 DUMMY_PASSWORD_HASH = password_hasher.hash("unused-login-password")
