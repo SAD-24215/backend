@@ -37,7 +37,9 @@ class User(Base):
     email: Mapped[str | None] = mapped_column(String(255), unique=True)
     system_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password_hash: Mapped[str | None] = mapped_column(String(255))
-    system_id_login_enabled: Mapped[bool] = mapped_column(Boolean, server_default=false())
+    system_id_login_enabled: Mapped[bool] = mapped_column(
+        Boolean, server_default=false()
+    )
     role_id: Mapped[int] = mapped_column(
         ForeignKey("roles.id", ondelete="RESTRICT"), nullable=False
     )
@@ -150,3 +152,11 @@ class RunCart(Base):
     cart: Mapped["Cart"] = relationship(back_populates="run_carts")
 
     __table_args__ = (UniqueConstraint("run_id", "cart_id", name="uq_run_cart"),)
+
+
+class CartCenterData(Base):
+    __tablename__ = "cart_center_data"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    address: Mapped[str] = mapped_column(String(1000), nullable=False)
+    rules: Mapped[str] = mapped_column(String(1000), nullable=False)
