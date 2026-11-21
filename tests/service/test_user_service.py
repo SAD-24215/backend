@@ -156,7 +156,7 @@ async def test_authenticate_returns_identity_for_valid_credentials(
     assert await user_service.authenticate(email, PASSWORD) == registered_account
 
 
-async def test_signup_without_id_creates_classic_account(
+async def test_signup_without_id_supports_email_and_system_id_login(
     user_service: UserService, email: str
 ) -> None:
     account = await user_service.signup_without_id(email, PASSWORD)
@@ -164,7 +164,7 @@ async def test_signup_without_id_creates_classic_account(
     assert isinstance(account, UserIdentity)
     assert UUID(account.system_id).version == 4
     assert await user_service.authenticate(email, PASSWORD) == account
-    assert await user_service.authenticate_with_id(account.system_id) is None
+    assert await user_service.authenticate_with_id(account.system_id) == account
 
 
 async def test_signup_without_id_rejects_duplicate_email(

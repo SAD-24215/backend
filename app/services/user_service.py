@@ -61,13 +61,13 @@ class UserService:
         return await self.repository.create_customer_with_id()
 
     async def authenticate_with_id(self, system_id: str | None) -> UserIdentity | None:
-        """Проверяет, доступен ли вход по указанному системному ID.
+        """Выполняет вход по указанному системному ID.
 
         Args:
             system_id: Системный идентификатор из запроса входа.
 
         Returns:
-            Идентификаторы пользователя или ``None``, если вход по этому ID недоступен.
+            Идентификаторы пользователя или ``None``, если аккаунт не найден.
         """
         if system_id is None:
             return None

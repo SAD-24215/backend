@@ -54,9 +54,7 @@ class UserRepository:
 
     async def create_customer(self, *, login: str, password_hash: str) -> UserIdentity:
         """Создаёт аккаунт для входа по email и паролю с новым системным UUID."""
-        return await self._create_customer(
-            login=login, password_hash=password_hash, system_id_login_enabled=False
-        )
+        return await self._create_customer(login=login, password_hash=password_hash)
 
     async def create_customer_with_id(self) -> UserIdentity:
         """Создаёт аккаунт с ролью customer и новым UUID для входа.
@@ -64,12 +62,11 @@ class UserRepository:
         Returns:
             Внутренний и системный идентификаторы нового пользователя.
         """
-        return await self._create_customer(system_id_login_enabled=True)
+        return await self._create_customer()
 
     async def _create_customer(
         self,
         *,
-        system_id_login_enabled: bool,
         login: str | None = None,
         password_hash: str | None = None,
     ) -> UserIdentity:
@@ -83,7 +80,6 @@ class UserRepository:
                 password_hash=password_hash,
                 system_id=str(uuid4()),
                 role_id=role_id,
-                system_id_login_enabled=system_id_login_enabled,
             )
             .on_conflict_do_nothing(index_elements=[User.email])
             .returning(User.id, User.system_id)
@@ -98,18 +94,16 @@ class UserRepository:
         return UserIdentity(id=row.id, system_id=row.system_id)
 
     async def get_by_system_id(self, system_id: str) -> UserIdentity | None:
-        """Ищет аккаунт, для которого разрешён вход по системному ID.
+        """Ищет аккаунт по системному ID.
 
         Args:
             system_id: Системный идентификатор из запроса.
 
         Returns:
-            Идентификаторы пользователя или ``None``, если вход по этому ID недоступен.
+            Идентификаторы пользователя или ``None``, если аккаунт не найден.
         """
         result = await self.session.execute(
-            select(User.id, User.system_id).where(
-                User.system_id == system_id, User.system_id_login_enabled.is_(True)
-            )
+            select(User.id, User.system_id).where(User.system_id == system_id)
         )
         row = result.one_or_none()
         if row is None:
@@ -146,10 +140,7 @@ class UserRepository:
             async with self.session.begin():
                 result = await self.session.execute(
                     select(User)
-                    .where(
-                        User.system_id == system_id,
-                        User.system_id_login_enabled.is_(True),
-                    )
+                    .where(User.system_id == system_id)
                     .with_for_update()
                 )
                 user = result.scalar_one_or_none()
