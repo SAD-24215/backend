@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     redis_port: int = Field(default=6379, ge=1, le=65535)
     redis_password: SecretStr | None = None
 
+    images_path: str
+
     @property
     def sqlalchemy_database_uri(self) -> str:
         return URL.create(
@@ -71,7 +73,9 @@ class Settings(BaseSettings):
         if test_host in local_hosts:
             test_host = "localhost"
         if (test_host, self.test_db_port, self.test_db_name) == (
-            main_host, int(self.db_port), self.db_name
+            main_host,
+            int(self.db_port),
+            self.db_name,
         ):
             raise ValueError("Тестовая БД должна отличаться от основной БД")
 

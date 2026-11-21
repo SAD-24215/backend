@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from app.features import auto_register_routers
 from app.core.config import settings
@@ -21,6 +22,10 @@ async def lifespan(app: FastAPI):
         await engine.dispose()
 
 
+def mount_folder(app: FastAPI, path: str):
+    app.mount(f"/{path}", StaticFiles(directory=path), name=path)
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title=settings.app_name, debug=settings.debug, lifespan=lifespan)
 
@@ -35,6 +40,8 @@ def create_app() -> FastAPI:
     )
 
     auto_register_routers(app)
+
+    mount_folder(app, settings.images_path)
 
     return app
 
