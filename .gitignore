@@ -229,3 +229,4 @@ docs/build/
 *.pyd
 
 images/
+create_admin.py
