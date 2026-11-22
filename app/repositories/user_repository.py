@@ -54,7 +54,9 @@ class UserRepository:
 
     async def create_customer(self, *, login: str, password_hash: str) -> UserIdentity:
         """Создаёт аккаунт для входа по email и паролю с новым системным UUID."""
-        return await self._create_customer(login=login, password_hash=password_hash)
+        return await self._create_user(
+            role="customer", login=login, password_hash=password_hash
+        )
 
     async def create_customer_with_id(self) -> UserIdentity:
         """Создаёт аккаунт с ролью customer и новым UUID для входа.
@@ -62,16 +64,29 @@ class UserRepository:
         Returns:
             Внутренний и системный идентификаторы нового пользователя.
         """
-        return await self._create_customer()
+        return await self._create_user(role="customer")
 
-    async def _create_customer(
+    async def create_employee(
+        self, *, login: str, password_hash: str, role: str
+    ) -> UserIdentity:
+        """Создаёт аккаунт сотрудника с указанной ролью и новым системным UUID."""
+        return await self._create_user(role=role, login=login, password_hash=password_hash)
+
+    async def get_role_name(self, user_id: int) -> str | None:
+        """Возвращает текущую роль пользователя по внутреннему ID."""
+        statement = select(Role.name).join(User, User.role_id == Role.id).where(User.id == user_id)
+        async with self.session.begin():
+            return await self.session.scalar(statement)
+
+    async def _create_user(
         self,
         *,
+        role: str,
         login: str | None = None,
         password_hash: str | None = None,
     ) -> UserIdentity:
         email = self._normalize_email(login) if login is not None else None
-        role_id = select(Role.id).where(Role.name == "customer").scalar_subquery()
+        role_id = select(Role.id).where(Role.name == role).scalar_subquery()
         statement = (
             insert(User)
             .values(

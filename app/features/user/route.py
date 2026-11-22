@@ -1,10 +1,12 @@
-"""Эндпоинты регистрации, входа и обновления токенов."""
+"""Эндпоинты регистрации, входа, обновления токенов и создания сотрудников."""
 
 from math import ceil
 from time import time
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jwt import InvalidTokenError
 from limits import RateLimitItemPerMinute
 from limits.storage import MemoryStorage
 from limits.strategies import MovingWindowRateLimiter
@@ -12,6 +14,7 @@ from redis.asyncio import Redis
 from redis.exceptions import RedisError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.consts.dto import UserIdentity
 from app.consts.exceptions import (
     ClassicCredentialsAlreadySetError,
     LoginAlreadyExistsError,
@@ -20,15 +23,17 @@ from app.core.config import settings
 from app.core.jwt_tokens import (
     create_access_token,
     get_refresh_token,
+    get_user_id_from_token,
     rotate_refresh_token,
 )
 from app.db.redis import get_redis
 from app.db.session import get_session
 from app.repositories.user_repository import UserRepository
 from app.services.user_service import UserService
-from app.consts.dto import UserIdentity
 
 from .schemas import (
+    AddEmployeePayload,
+    EmployeeResponse,
     LoginPayload,
     RefreshAccessTokenResponse,
     SignupPayload,
@@ -41,6 +46,7 @@ router = APIRouter(tags=["user"])
 login_limit = RateLimitItemPerMinute(5)
 login_limiter = MovingWindowRateLimiter(MemoryStorage())
 RedisClient = Annotated[Redis, Depends(get_redis)]
+access_bearer = HTTPBearer(auto_error=False, bearerFormat="JWT")
 
 
 def get_user_repository(
@@ -55,6 +61,43 @@ def get_user_service(
 ) -> UserService:
     """Создаёт сервис пользователей с репозиторием текущего запроса."""
     return UserService(repository)
+
+
+async def require_admin(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(access_bearer)],
+    service: Annotated[UserService, Depends(get_user_service)],
+) -> None:
+    """Проверяет access-токен и текущую роль пользователя в БД."""
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Bearer access token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    secret_key = settings.jwt_secret_key
+    if secret_key is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Token service is unavailable",
+        )
+
+    try:
+        user_id = get_user_id_from_token(
+            credentials.credentials, secret_key=secret_key.get_secret_value()
+        )
+    except InvalidTokenError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired access token",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+
+    if not await service.is_admin(user_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator role required",
+        )
 
 
 async def token_response(
@@ -242,3 +285,35 @@ async def get_refresh_token_route(
         access_token=create_access_token(user_id, secret_key=secret_key),
         refresh_token=refresh_token,
     )
+
+
+@router.post(
+    "/api/v1/users/employee",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
+)
+async def add_employee(
+    payload: AddEmployeePayload,
+    service: Annotated[UserService, Depends(get_user_service)],
+) -> EmployeeResponse:
+    """Создаёт сотрудника по email и паролю с новым системным UUID.
+
+    Returns:
+        Внутренний ID и роль сотрудника.
+
+    Raises:
+        HTTPException: HTTP 401 при недействительном токене, HTTP 403 при отсутствии
+            роли администратора или HTTP 409, если email уже занят.
+    """
+    role = "marshal" if payload.role == "marshall" else payload.role
+    try:
+        identity = await service.add_employee(
+            login=payload.login, password=payload.password.get_secret_value(), role=role
+        )
+    except LoginAlreadyExistsError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Login already exists",
+        ) from exc
+
+    return EmployeeResponse(id=identity.id, role=role)

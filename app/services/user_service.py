@@ -52,6 +52,17 @@ class UserService:
         password_hash = await run_in_threadpool(password_hasher.hash, password)
         return await self.repository.create_customer(login=login, password_hash=password_hash)
 
+    async def add_employee(self, login: str, password: str, role: str) -> UserIdentity:
+        """Хеширует пароль и создаёт учётную запись сотрудника с указанной ролью."""
+        password_hash = await run_in_threadpool(password_hasher.hash, password)
+        return await self.repository.create_employee(
+            login=login, password_hash=password_hash, role=role
+        )
+
+    async def is_admin(self, user_id: int) -> bool:
+        """Проверяет, есть ли у пользователя роль администратора."""
+        return await self.repository.get_role_name(user_id) == "admin"
+
     async def signup_with_id(self) -> UserIdentity:
         """Создаёт аккаунт для входа по UUID без email и пароля.
 

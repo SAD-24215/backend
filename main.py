@@ -12,6 +12,10 @@ from app.db.session import engine
 import structlog
 
 
+def create_admin_user():
+    pass
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:

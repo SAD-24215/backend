@@ -1,7 +1,9 @@
 """Схемы запросов и ответов API авторизации."""
 
+from typing import Literal
+
 from email_validator import validate_email
-from pydantic import UUID4, BaseModel, Field, SecretStr, field_validator
+from pydantic import UUID4, BaseModel, ConfigDict, Field, SecretStr, field_validator
 
 
 class LoginPayload(BaseModel):
@@ -36,7 +38,18 @@ class TokenPayload(BaseModel):
     refresh_token: SecretStr = Field(min_length=1, max_length=256)
 
 
-class SignupPayload(LoginPayload):
+class NewCredentialsPayload(LoginPayload):
+    """Email и пароль для записи учётных данных."""
+
+    @field_validator("login")
+    @classmethod
+    def validate_login_email(cls, login: str) -> str:
+        """Проверяет формат email без DNS-запроса и возвращает исходную строку."""
+        validate_email(login, check_deliverability=False)
+        return login
+
+
+class SignupPayload(NewCredentialsPayload):
     """Email и пароль для регистрации или привязки к существующему аккаунту.
 
     Attributes:
@@ -45,12 +58,20 @@ class SignupPayload(LoginPayload):
 
     system_id: UUID4 | None = None
 
-    @field_validator("login")
-    @classmethod
-    def validate_login_email(cls, login: str) -> str:
-        """Проверяет формат email без DNS-запроса и возвращает исходную строку."""
-        validate_email(login, check_deliverability=False)
-        return login
+
+class AddEmployeePayload(NewCredentialsPayload):
+    """Email, пароль и роль нового сотрудника."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    role: Literal["admin", "marshal", "marshall"]
+
+
+class EmployeeResponse(BaseModel):
+    """Внутренний ID и роль созданного сотрудника."""
+
+    id: int
+    role: Literal["admin", "marshal"]
 
 
 class RefreshAccessTokenResponse(BaseModel):
