@@ -70,13 +70,28 @@ class UserRepository:
         self, *, login: str, password_hash: str, role: str
     ) -> UserIdentity:
         """Создаёт аккаунт сотрудника с указанной ролью и новым системным UUID."""
-        return await self._create_user(role=role, login=login, password_hash=password_hash)
+        return await self._create_user(
+            role=role, login=login, password_hash=password_hash
+        )
 
     async def get_role_name(self, user_id: int) -> str | None:
         """Возвращает текущую роль пользователя по внутреннему ID."""
-        statement = select(Role.name).join(User, User.role_id == Role.id).where(User.id == user_id)
+        statement = (
+            select(Role.name)
+            .join(User, User.role_id == Role.id)
+            .where(User.id == user_id)
+        )
         async with self.session.begin():
             return await self.session.scalar(statement)
+
+    async def get_role_name_by_email(self, email: str) -> str | None:
+        """Возвращает роль пользователя с указанным email."""
+        statement = (
+            select(Role.name)
+            .join(User, User.role_id == Role.id)
+            .where(User.email == self._normalize_email(email))
+        )
+        return await self.session.scalar(statement)
 
     async def _create_user(
         self,
@@ -154,9 +169,7 @@ class UserRepository:
         try:
             async with self.session.begin():
                 result = await self.session.execute(
-                    select(User)
-                    .where(User.system_id == system_id)
-                    .with_for_update()
+                    select(User).where(User.system_id == system_id).with_for_update()
                 )
                 user = result.scalar_one_or_none()
                 if user is None:
