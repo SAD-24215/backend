@@ -26,30 +26,35 @@ def get_info_service(
     return InfoService(repository)
 
 
-def _info_response(info: CartCenterInfo | None) -> CartingResponse:
+async def _info_response(
+    info: CartCenterInfo | None, service: InfoService
+) -> CartingResponse:
     if info is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Carting center data not found"
         )
 
     photo_url = f"http://{settings.app_host}:{settings.app_port}/images/test_image.jpg"
+    cart_models = await service.get_cart_models()
     return CartingResponse(
         address=info.address,
         rules=info.rules,
         price_list=[
             CartModel(
-                name="Карт",
-                description="Описание появится позже",
+                name=cart_model.name,
+                description=cart_model.description,
                 photo_path=photo_url,
-                price=0,
+                price=cart_model.price,
+                cart_count=cart_model.cart_count,
             )
+            for cart_model in cart_models
         ],
     )
 
 
 @router.get("/api/v1/info", status_code=status.HTTP_200_OK)
 async def get_info(service: Annotated[InfoService, Depends(get_info_service)]) -> CartingResponse:
-    return _info_response(await service.get_info())
+    return await _info_response(await service.get_info(), service)
 
 
 @router.put("/api/v1/info", status_code=status.HTTP_200_OK)
@@ -57,4 +62,4 @@ async def update_info(
     payload: CartingPayload, service: Annotated[InfoService, Depends(get_info_service)]
 ) -> CartingResponse:
     info = await service.update_info(address=payload.address, rules=payload.rules)
-    return _info_response(info)
+    return await _info_response(info, service)

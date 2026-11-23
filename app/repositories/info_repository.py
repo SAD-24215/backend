@@ -1,12 +1,10 @@
 """Чтение и обновление данных картинг-центра."""
 
-from dataclasses import dataclass
-
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.consts.dto import CartCenterInfo
-from app.db.models import CartCenterData
+from app.consts.dto import CartCenterInfo, CartModelInfo
+from app.db.models import Cart, CartCenterData, CartModel
 
 
 class InfoRepository:
@@ -25,6 +23,30 @@ class InfoRepository:
         if row is None:
             return None
         return CartCenterInfo(address=row.address, rules=row.rules)
+
+    async def get_cart_models(self) -> list[CartModelInfo]:
+        """Читает модели по возрастанию ID и считает карты каждой модели."""
+        statement = (
+            select(
+                CartModel.model,
+                CartModel.description,
+                CartModel.price,
+                func.count(Cart.id).label("cart_count"),
+            )
+            .outerjoin(Cart, Cart.cart_model_id == CartModel.id)
+            .group_by(CartModel.id, CartModel.model, CartModel.description, CartModel.price)
+            .order_by(CartModel.id)
+        )
+        result = await self.session.execute(statement)
+        return [
+            CartModelInfo(
+                name=row.model,
+                description=row.description,
+                price=row.price,
+                cart_count=row.cart_count,
+            )
+            for row in result
+        ]
 
     async def update_info(self, *, address: str, rules: str) -> CartCenterInfo | None:
         """Сохраняет адрес и правила и возвращает обновлённые данные."""

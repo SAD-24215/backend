@@ -18,3 +18,13 @@ class UserIdentity:
 class CartCenterInfo:
     address: str
     rules: str
+
+
+@dataclass(frozen=True)
+class CartModelInfo:
+    """Данные модели карты и количество её экземпляров."""
+
+    name: str
+    description: str
+    price: int
+    cart_count: int

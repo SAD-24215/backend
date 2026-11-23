@@ -6,6 +6,7 @@ class CartModel(BaseModel):
     description: str
     photo_path: str
     price: int
+    cart_count: int
 
 
 class CartingData(BaseModel):
