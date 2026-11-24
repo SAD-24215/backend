@@ -18,7 +18,8 @@ author = 'SAD-24215'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
+source_dir = os.path.dirname(__file__)
+root_dir = os.path.abspath(os.path.join(source_dir, '..'))
 dotenv_path = os.path.join(root_dir, '.env')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
@@ -27,12 +28,16 @@ sys.path.insert(0, root_dir)
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
 
+# Новый autodoc в Sphinx 9 повреждает аннотации Pydantic (sphinx-doc/sphinx#14337).
+autodoc_use_legacy_class_based = True
+
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['build']
 
 language = 'ru'
 
@@ -40,4 +45,5 @@ language = 'ru'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'furo'
-html_static_path = ['_static']
+html_static_path = ['_static'] if os.path.isdir(os.path.join(source_dir, '_static')) else []
+html_copy_source = False
