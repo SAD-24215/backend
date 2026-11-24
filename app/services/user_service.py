@@ -59,9 +59,13 @@ class UserService:
             login=login, password_hash=password_hash, role=role
         )
 
+    async def get_role_name(self, user_id: int) -> str | None:
+        """Возвращает текущую роль пользователя."""
+        return await self.repository.get_role_name(user_id)
+
     async def is_admin(self, user_id: int) -> bool:
         """Проверяет, есть ли у пользователя роль администратора."""
-        return await self.repository.get_role_name(user_id) == "admin"
+        return await self.get_role_name(user_id) == "admin"
 
     async def signup_with_id(self) -> UserIdentity:
         """Создаёт аккаунт для входа по UUID без email и пароля.

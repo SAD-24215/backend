@@ -36,6 +36,7 @@ from .schemas import (
     EmployeeResponse,
     LoginPayload,
     RefreshAccessTokenResponse,
+    RoleResponse,
     SignupPayload,
     SystemIdPayload,
     TokenResponse,
@@ -63,11 +64,10 @@ def get_user_service(
     return UserService(repository)
 
 
-async def require_admin(
+async def get_current_user_id(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(access_bearer)],
-    service: Annotated[UserService, Depends(get_user_service)],
-) -> None:
-    """Проверяет access-токен и текущую роль пользователя в БД."""
+) -> int:
+    """Проверяет access-токен и возвращает ID пользователя из JWT."""
     if credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -83,7 +83,7 @@ async def require_admin(
         )
 
     try:
-        user_id = get_user_id_from_token(
+        return get_user_id_from_token(
             credentials.credentials, secret_key=secret_key.get_secret_value()
         )
     except InvalidTokenError as exc:
@@ -93,6 +93,12 @@ async def require_admin(
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
 
+
+async def require_admin(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    service: Annotated[UserService, Depends(get_user_service)],
+) -> None:
+    """Проверяет текущую роль пользователя в БД."""
     if not await service.is_admin(user_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -317,3 +323,19 @@ async def add_employee(
         ) from exc
 
     return EmployeeResponse(id=identity.id, role=role)
+
+
+@router.get("/api/v1/roles", status_code=status.HTTP_200_OK)
+async def get_role(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    service: Annotated[UserService, Depends(get_user_service)],
+) -> RoleResponse:
+    """Возвращает текущую роль пользователя из БД."""
+    role = await service.get_role_name(user_id)
+    if role is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return RoleResponse.model_validate({"role": role})

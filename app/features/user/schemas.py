@@ -94,3 +94,7 @@ class TokenResponse(RefreshAccessTokenResponse):
     """
 
     system_id: str
+
+
+class RoleResponse(BaseModel):
+    role: Literal["admin", "marshal", "customer"]
