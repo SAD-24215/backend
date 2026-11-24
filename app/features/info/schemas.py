@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class CartModel(BaseModel):
+    cart_model_id: int
     name: str
     description: str
     photo_path: str
@@ -20,3 +21,14 @@ class CartingResponse(CartingData):
 
 class CartingPayload(CartingData):
     pass
+
+
+class AddCartPayload(BaseModel):
+    cart_model_id: int = Field(gt=0, le=2_147_483_647)
+    is_available: bool = True
+
+
+class AddCartModelPayload(BaseModel):
+    name: str = Field(min_length=1, max_length=255, pattern=r"^[^\x00]+$")
+    description: str = Field(max_length=1000, pattern=r"^[^\x00]*$")
+    price: int = Field(ge=0, le=2_147_483_647)

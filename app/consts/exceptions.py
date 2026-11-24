@@ -4,3 +4,15 @@ class LoginAlreadyExistsError(Exception):
 
 class ClassicCredentialsAlreadySetError(Exception):
     pass
+
+
+class CartModelNotFoundError(Exception):
+    pass
+
+
+class CartInUseError(Exception):
+    pass
+
+
+class CartModelInUseError(Exception):
+    pass

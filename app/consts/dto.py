@@ -24,6 +24,7 @@ class CartCenterInfo:
 class CartModelInfo:
     """Данные модели карты и количество её экземпляров."""
 
+    cart_model_id: int
     name: str
     description: str
     price: int

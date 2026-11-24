@@ -28,6 +28,7 @@ class InfoRepository:
         """Читает модели по возрастанию ID и считает карты каждой модели."""
         statement = (
             select(
+                CartModel.id.label("cart_model_id"),
                 CartModel.model,
                 CartModel.description,
                 CartModel.price,
@@ -40,6 +41,7 @@ class InfoRepository:
         result = await self.session.execute(statement)
         return [
             CartModelInfo(
+                cart_model_id=row.cart_model_id,
                 name=row.model,
                 description=row.description,
                 price=row.price,
