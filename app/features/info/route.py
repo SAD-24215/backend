@@ -23,6 +23,8 @@ from .schemas import (
     CartingPayload,
     CartingResponse,
     CartModel,
+    UpdateCartModelPayload,
+    UpdateCartPayload,
 )
 
 router = APIRouter(tags=["info"])
@@ -147,6 +149,36 @@ async def delete_cart(
         ) from exc
 
 
+@router.put(
+    "/api/v1/carts",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_admin)],
+)
+async def update_cart(
+    payload: UpdateCartPayload,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    service: Annotated[CartService, Depends(get_cart_service)],
+    info_service: Annotated[InfoService, Depends(get_info_service)],
+) -> CartingResponse:
+    """Обновляет карт и возвращает информацию о центре."""
+    try:
+        async with session.begin():
+            updated = await service.update_cart(
+                payload.id,
+                cart_model_id=payload.cart_model_id,
+                is_available=payload.is_available,
+            )
+            if not updated:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="Cart not found"
+                )
+            return await _info_response(await info_service.get_info(), info_service)
+    except CartModelNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Cart model not found"
+        ) from exc
+
+
 @router.post(
     "/api/v1/cart_models",
     status_code=status.HTTP_201_CREATED,
@@ -192,3 +224,29 @@ async def delete_cart_model(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Cart model is linked to carts"
         ) from exc
+
+
+@router.put(
+    "/api/v1/cart_models",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_admin)],
+)
+async def update_cart_model(
+    payload: UpdateCartModelPayload,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    service: Annotated[CartService, Depends(get_cart_service)],
+    info_service: Annotated[InfoService, Depends(get_info_service)],
+) -> CartingResponse:
+    """Обновляет модель карта и возвращает обновлённый прайс-лист."""
+    async with session.begin():
+        updated = await service.update_cart_model(
+            payload.id,
+            name=payload.name,
+            description=payload.description,
+            price=payload.price,
+        )
+        if not updated:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Cart model not found"
+            )
+        return await _info_response(await info_service.get_info(), info_service)
