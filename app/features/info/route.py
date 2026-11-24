@@ -11,6 +11,7 @@ from app.consts.exceptions import (
 )
 from app.core.config import settings
 from app.db.session import get_session
+from app.features.user.route import require_admin
 from app.repositories.cart_repository import CartRepository
 from app.repositories.info_repository import InfoRepository
 from app.services.cart_service import CartService
@@ -94,7 +95,11 @@ async def update_info(
     return await _info_response(info, service)
 
 
-@router.post("/api/v1/carts", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/api/v1/carts",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
+)
 async def add_cart(
     payload: AddCartPayload,
     response: Response,
@@ -119,7 +124,10 @@ async def add_cart(
 
 
 @router.delete(
-    "/api/v1/carts", status_code=status.HTTP_204_NO_CONTENT, response_class=Response
+    "/api/v1/carts",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    dependencies=[Depends(require_admin)],
 )
 async def delete_cart(
     cart_id: Annotated[int, Query(gt=0, le=2_147_483_647)],
@@ -139,7 +147,11 @@ async def delete_cart(
         ) from exc
 
 
-@router.post("/api/v1/cart_models", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/api/v1/cart_models",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
+)
 async def add_cart_model(
     payload: AddCartModelPayload,
     response: Response,
@@ -159,7 +171,10 @@ async def add_cart_model(
 
 
 @router.delete(
-    "/api/v1/cart_models", status_code=status.HTTP_204_NO_CONTENT, response_class=Response
+    "/api/v1/cart_models",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    dependencies=[Depends(require_admin)],
 )
 async def delete_cart_model(
     cart_model_id: Annotated[int, Query(gt=0, le=2_147_483_647)],
