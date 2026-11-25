@@ -195,14 +195,19 @@
 <li class="toctree-l2"><a class="reference internal" href="jwt_tokens.html">Токены доступа и обновления</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="repositories.html">Репозитории</a><input aria-label="Toggle navigation of Репозитории" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user_repository.html">Репозиторий пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_repository.html">Репозиторий картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_repository.html">Репозиторий картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="services.html">Сервисы</a><input aria-label="Toggle navigation of Сервисы" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user_service.html">Сервис пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_service.html">Сервис картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_service.html">Сервис картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="features.html">Маршруты</a><input aria-label="Toggle navigation of Маршруты" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user.html">API пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">API картинг-центра</a></li>
 </ul>
 </li>
 </ul>
@@ -250,12 +255,40 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="user.html#app.features.user.schemas.RefreshAccessTokenResponse.access_token">access_token (атрибут app.features.user.schemas.RefreshAccessTokenResponse)</a>
 </li>
-        <li><a href="user_service.html#app.services.user_service.UserService.add_employee">add_employee() (метод app.services.user_service.UserService)</a>
+        <li><a href="info.html#app.features.info.route.add_cart">add_cart() (в модуле app.features.info.route)</a>
+
+        <ul>
+          <li><a href="cart_repository.html#app.repositories.cart_repository.CartRepository.add_cart">(метод app.repositories.cart_repository.CartRepository)</a>
+</li>
+          <li><a href="cart_service.html#app.services.cart_service.CartService.add_cart">(метод app.services.cart_service.CartService)</a>
+</li>
+        </ul></li>
+        <li><a href="info.html#app.features.info.route.add_cart_model">add_cart_model() (в модуле app.features.info.route)</a>
+
+        <ul>
+          <li><a href="cart_repository.html#app.repositories.cart_repository.CartRepository.add_cart_model">(метод app.repositories.cart_repository.CartRepository)</a>
+</li>
+          <li><a href="cart_service.html#app.services.cart_service.CartService.add_cart_model">(метод app.services.cart_service.CartService)</a>
+</li>
+        </ul></li>
+        <li><a href="user.html#app.features.user.route.add_employee">add_employee() (в модуле app.features.user.route)</a>
+
+        <ul>
+          <li><a href="user_service.html#app.services.user_service.UserService.add_employee">(метод app.services.user_service.UserService)</a>
+</li>
+        </ul></li>
+        <li><a href="info.html#app.features.info.schemas.AddCartModelPayload">AddCartModelPayload (класс в app.features.info.schemas)</a>
+</li>
+        <li><a href="info.html#app.features.info.schemas.AddCartPayload">AddCartPayload (класс в app.features.info.schemas)</a>
 </li>
         <li><a href="user.html#app.features.user.schemas.AddEmployeePayload">AddEmployeePayload (класс в app.features.user.schemas)</a>
 </li>
         <li><a href="config.html#app.db.models.CartCenterData.address">address (атрибут app.db.models.CartCenterData)</a>
+
+        <ul>
+          <li><a href="info.html#app.features.info.schemas.CartingData.address">(атрибут app.features.info.schemas.CartingData)</a>
 </li>
+        </ul></li>
         <li>
     app.core.config
 
@@ -285,6 +318,22 @@
 </li>
         </ul></li>
         <li>
+    app.features.info.route
+
+        <ul>
+          <li><a href="info.html#module-app.features.info.route">module</a>
+</li>
+        </ul></li>
+        <li>
+    app.features.info.schemas
+
+        <ul>
+          <li><a href="info.html#module-app.features.info.schemas">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
     app.features.user.route
 
         <ul>
@@ -298,13 +347,39 @@
           <li><a href="user.html#module-app.features.user.schemas">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    app.repositories.cart_repository
+
+        <ul>
+          <li><a href="cart_repository.html#module-app.repositories.cart_repository">module</a>
+</li>
+        </ul></li>
+        <li>
+    app.repositories.info_repository
+
+        <ul>
+          <li><a href="info_repository.html#module-app.repositories.info_repository">module</a>
+</li>
+        </ul></li>
         <li>
     app.repositories.user_repository
 
         <ul>
           <li><a href="user_repository.html#module-app.repositories.user_repository">module</a>
+</li>
+        </ul></li>
+        <li>
+    app.services.cart_service
+
+        <ul>
+          <li><a href="cart_service.html#module-app.services.cart_service">module</a>
+</li>
+        </ul></li>
+        <li>
+    app.services.info_service
+
+        <ul>
+          <li><a href="info_service.html#module-app.services.info_service">module</a>
 </li>
         </ul></li>
         <li>
@@ -358,19 +433,43 @@
 </li>
         <li><a href="config.html#app.db.models.Cart">Cart (класс в app.db.models)</a>
 </li>
+        <li><a href="info.html#app.features.info.schemas.CartModel.cart_count">cart_count (атрибут app.features.info.schemas.CartModel)</a>
+</li>
         <li><a href="config.html#app.db.models.RunCart.cart_id">cart_id (атрибут app.db.models.RunCart)</a>
 </li>
         <li><a href="config.html#app.db.models.Cart.cart_model">cart_model (атрибут app.db.models.Cart)</a>
 </li>
         <li><a href="config.html#app.db.models.Cart.cart_model_id">cart_model_id (атрибут app.db.models.Cart)</a>
+
+        <ul>
+          <li><a href="info.html#app.features.info.schemas.AddCartPayload.cart_model_id">(атрибут app.features.info.schemas.AddCartPayload)</a>
 </li>
+          <li><a href="info.html#app.features.info.schemas.CartModel.cart_model_id">(атрибут app.features.info.schemas.CartModel)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.UpdateCartPayload.cart_model_id">(атрибут app.features.info.schemas.UpdateCartPayload)</a>
+</li>
+        </ul></li>
         <li><a href="config.html#app.db.models.CartCenterData">CartCenterData (класс в app.db.models)</a>
 </li>
-        <li><a href="config.html#app.db.models.CartModel">CartModel (класс в app.db.models)</a>
+        <li><a href="info.html#app.features.info.schemas.CartingData">CartingData (класс в app.features.info.schemas)</a>
+</li>
+        <li><a href="info.html#app.features.info.schemas.CartingPayload">CartingPayload (класс в app.features.info.schemas)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="info.html#app.features.info.schemas.CartingResponse">CartingResponse (класс в app.features.info.schemas)</a>
+</li>
+        <li><a href="config.html#app.db.models.CartModel">CartModel (класс в app.db.models)</a>
+
+        <ul>
+          <li><a href="info.html#app.features.info.schemas.CartModel">(класс в app.features.info.schemas)</a>
+</li>
+        </ul></li>
+        <li><a href="cart_repository.html#app.repositories.cart_repository.CartRepository">CartRepository (класс в app.repositories.cart_repository)</a>
+</li>
         <li><a href="config.html#app.db.models.CartModel.carts">carts (атрибут app.db.models.CartModel)</a>
+</li>
+        <li><a href="cart_service.html#app.services.cart_service.CartService">CartService (класс в app.services.cart_service)</a>
 </li>
         <li><a href="jwt_tokens.html#app.core.jwt_tokens.create_access_token">create_access_token() (в модуле app.core.jwt_tokens)</a>
 </li>
@@ -404,8 +503,6 @@
 </li>
         <li><a href="config.html#app.core.config.Settings.db_container">db_container (атрибут app.core.config.Settings)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="config.html#app.core.config.Settings.db_name">db_name (атрибут app.core.config.Settings)</a>
 </li>
         <li><a href="config.html#app.core.config.Settings.db_password">db_password (атрибут app.core.config.Settings)</a>
@@ -414,12 +511,36 @@
 </li>
         <li><a href="config.html#app.core.config.Settings.db_url_prefix">db_url_prefix (атрибут app.core.config.Settings)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="config.html#app.core.config.Settings.db_user">db_user (атрибут app.core.config.Settings)</a>
 </li>
         <li><a href="config.html#app.core.config.Settings.debug">debug (атрибут app.core.config.Settings)</a>
 </li>
-        <li><a href="config.html#app.db.models.CartModel.description">description (атрибут app.db.models.CartModel)</a>
+        <li><a href="info.html#app.features.info.route.delete_cart">delete_cart() (в модуле app.features.info.route)</a>
+
+        <ul>
+          <li><a href="cart_repository.html#app.repositories.cart_repository.CartRepository.delete_cart">(метод app.repositories.cart_repository.CartRepository)</a>
 </li>
+          <li><a href="cart_service.html#app.services.cart_service.CartService.delete_cart">(метод app.services.cart_service.CartService)</a>
+</li>
+        </ul></li>
+        <li><a href="info.html#app.features.info.route.delete_cart_model">delete_cart_model() (в модуле app.features.info.route)</a>
+
+        <ul>
+          <li><a href="cart_repository.html#app.repositories.cart_repository.CartRepository.delete_cart_model">(метод app.repositories.cart_repository.CartRepository)</a>
+</li>
+          <li><a href="cart_service.html#app.services.cart_service.CartService.delete_cart_model">(метод app.services.cart_service.CartService)</a>
+</li>
+        </ul></li>
+        <li><a href="config.html#app.db.models.CartModel.description">description (атрибут app.db.models.CartModel)</a>
+
+        <ul>
+          <li><a href="info.html#app.features.info.schemas.AddCartModelPayload.description">(атрибут app.features.info.schemas.AddCartModelPayload)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.CartModel.description">(атрибут app.features.info.schemas.CartModel)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -448,14 +569,28 @@
 </li>
         <li><a href="user_repository.html#app.repositories.user_repository.UserRepository.get_by_system_id">get_by_system_id() (метод app.repositories.user_repository.UserRepository)</a>
 </li>
-        <li><a href="jwt_tokens.html#app.core.jwt_tokens.get_refresh_token">get_refresh_token() (в модуле app.core.jwt_tokens)</a>
+        <li><a href="info_repository.html#app.repositories.info_repository.InfoRepository.get_cart_models">get_cart_models() (метод app.repositories.info_repository.InfoRepository)</a>
 
         <ul>
-          <li><a href="user.html#app.features.user.route.get_refresh_token">(в модуле app.features.user.route)</a>
+          <li><a href="info_service.html#app.services.info_service.InfoService.get_cart_models">(метод app.services.info_service.InfoService)</a>
+</li>
+        </ul></li>
+        <li><a href="info.html#app.features.info.route.get_info">get_info() (в модуле app.features.info.route)</a>
+
+        <ul>
+          <li><a href="info_repository.html#app.repositories.info_repository.InfoRepository.get_info">(метод app.repositories.info_repository.InfoRepository)</a>
+</li>
+          <li><a href="info_service.html#app.services.info_service.InfoService.get_info">(метод app.services.info_service.InfoService)</a>
 </li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="jwt_tokens.html#app.core.jwt_tokens.get_refresh_token">get_refresh_token() (в модуле app.core.jwt_tokens)</a>
+</li>
+        <li><a href="user.html#app.features.user.route.get_refresh_token_route">get_refresh_token_route() (в модуле app.features.user.route)</a>
+</li>
+        <li><a href="user.html#app.features.user.route.get_role">get_role() (в модуле app.features.user.route)</a>
+</li>
         <li><a href="user_repository.html#app.repositories.user_repository.UserRepository.get_role_name">get_role_name() (метод app.repositories.user_repository.UserRepository)</a>
 
         <ul>
@@ -493,15 +628,31 @@
 </li>
           <li><a href="config.html#app.db.models.User.id">(атрибут app.db.models.User)</a>
 </li>
+          <li><a href="info.html#app.features.info.schemas.UpdateCartModelPayload.id">(атрибут app.features.info.schemas.UpdateCartModelPayload)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.UpdateCartPayload.id">(атрибут app.features.info.schemas.UpdateCartPayload)</a>
+</li>
+          <li><a href="user.html#app.features.user.schemas.EmployeeResponse.id">(атрибут app.features.user.schemas.EmployeeResponse)</a>
+</li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="config.html#app.core.config.Settings.images_path">images_path (атрибут app.core.config.Settings)</a>
 </li>
+        <li><a href="info_repository.html#app.repositories.info_repository.InfoRepository">InfoRepository (класс в app.repositories.info_repository)</a>
+</li>
+        <li><a href="info_service.html#app.services.info_service.InfoService">InfoService (класс в app.services.info_service)</a>
+</li>
         <li><a href="user_service.html#app.services.user_service.UserService.is_admin">is_admin() (метод app.services.user_service.UserService)</a>
 </li>
         <li><a href="config.html#app.db.models.Cart.is_available">is_available (атрибут app.db.models.Cart)</a>
+
+        <ul>
+          <li><a href="info.html#app.features.info.schemas.AddCartPayload.is_available">(атрибут app.features.info.schemas.AddCartPayload)</a>
 </li>
+          <li><a href="info.html#app.features.info.schemas.UpdateCartPayload.is_available">(атрибут app.features.info.schemas.UpdateCartPayload)</a>
+</li>
+        </ul></li>
         <li><a href="config.html#app.db.models.Run.is_cancelled">is_cancelled (атрибут app.db.models.Run)</a>
 </li>
     </ul></td>
@@ -551,6 +702,22 @@
         <li><a href="config.html#app.core.config.Settings.model_config">model_config (атрибут app.core.config.Settings)</a>
 
         <ul>
+          <li><a href="info.html#app.features.info.schemas.AddCartModelPayload.model_config">(атрибут app.features.info.schemas.AddCartModelPayload)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.AddCartPayload.model_config">(атрибут app.features.info.schemas.AddCartPayload)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.CartingData.model_config">(атрибут app.features.info.schemas.CartingData)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.CartingPayload.model_config">(атрибут app.features.info.schemas.CartingPayload)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.CartingResponse.model_config">(атрибут app.features.info.schemas.CartingResponse)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.CartModel.model_config">(атрибут app.features.info.schemas.CartModel)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.UpdateCartModelPayload.model_config">(атрибут app.features.info.schemas.UpdateCartModelPayload)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.UpdateCartPayload.model_config">(атрибут app.features.info.schemas.UpdateCartPayload)</a>
+</li>
           <li><a href="user.html#app.features.user.schemas.AddEmployeePayload.model_config">(атрибут app.features.user.schemas.AddEmployeePayload)</a>
 </li>
           <li><a href="user.html#app.features.user.schemas.EmployeeResponse.model_config">(атрибут app.features.user.schemas.EmployeeResponse)</a>
@@ -586,11 +753,23 @@
 </li>
           <li><a href="features.html#module-app.features">app.features</a>
 </li>
+          <li><a href="info.html#module-app.features.info.route">app.features.info.route</a>
+</li>
+          <li><a href="info.html#module-app.features.info.schemas">app.features.info.schemas</a>
+</li>
           <li><a href="user.html#module-app.features.user.route">app.features.user.route</a>
 </li>
           <li><a href="user.html#module-app.features.user.schemas">app.features.user.schemas</a>
 </li>
+          <li><a href="cart_repository.html#module-app.repositories.cart_repository">app.repositories.cart_repository</a>
+</li>
+          <li><a href="info_repository.html#module-app.repositories.info_repository">app.repositories.info_repository</a>
+</li>
           <li><a href="user_repository.html#module-app.repositories.user_repository">app.repositories.user_repository</a>
+</li>
+          <li><a href="cart_service.html#module-app.services.cart_service">app.services.cart_service</a>
+</li>
+          <li><a href="info_service.html#module-app.services.info_service">app.services.info_service</a>
 </li>
           <li><a href="user_service.html#module-app.services.user_service">app.services.user_service</a>
 </li>
@@ -608,6 +787,10 @@
         <ul>
           <li><a href="config.html#app.db.models.User.name">(атрибут app.db.models.User)</a>
 </li>
+          <li><a href="info.html#app.features.info.schemas.AddCartModelPayload.name">(атрибут app.features.info.schemas.AddCartModelPayload)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.CartModel.name">(атрибут app.features.info.schemas.CartModel)</a>
+</li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
@@ -623,11 +806,21 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="user.html#app.features.user.schemas.LoginPayload.password">password (атрибут app.features.user.schemas.LoginPayload)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="config.html#app.db.models.User.password_hash">password_hash (атрибут app.db.models.User)</a>
 </li>
+        <li><a href="info.html#app.features.info.schemas.CartModel.photo_path">photo_path (атрибут app.features.info.schemas.CartModel)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="config.html#app.db.models.CartModel.price">price (атрибут app.db.models.CartModel)</a>
+
+        <ul>
+          <li><a href="info.html#app.features.info.schemas.AddCartModelPayload.price">(атрибут app.features.info.schemas.AddCartModelPayload)</a>
+</li>
+          <li><a href="info.html#app.features.info.schemas.CartModel.price">(атрибут app.features.info.schemas.CartModel)</a>
+</li>
+        </ul></li>
+        <li><a href="info.html#app.features.info.schemas.CartingResponse.price_list">price_list (атрибут app.features.info.schemas.CartingResponse)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -654,19 +847,31 @@
         <li><a href="config.html#app.db.models.Base.registry">registry (атрибут app.db.models.Base)</a>
 </li>
         <li><a href="config.html#app.db.models.User.role">role (атрибут app.db.models.User)</a>
+
+        <ul>
+          <li><a href="user.html#app.features.user.schemas.AddEmployeePayload.role">(атрибут app.features.user.schemas.AddEmployeePayload)</a>
 </li>
+          <li><a href="user.html#app.features.user.schemas.EmployeeResponse.role">(атрибут app.features.user.schemas.EmployeeResponse)</a>
+</li>
+          <li><a href="user.html#app.features.user.schemas.RoleResponse.role">(атрибут app.features.user.schemas.RoleResponse)</a>
+</li>
+        </ul></li>
         <li><a href="config.html#app.db.models.Role">Role (класс в app.db.models)</a>
-</li>
-        <li><a href="config.html#app.db.models.User.role_id">role_id (атрибут app.db.models.User)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="config.html#app.db.models.User.role_id">role_id (атрибут app.db.models.User)</a>
+</li>
         <li><a href="user.html#app.features.user.schemas.RoleResponse">RoleResponse (класс в app.features.user.schemas)</a>
 </li>
         <li><a href="jwt_tokens.html#app.core.jwt_tokens.rotate_refresh_token">rotate_refresh_token() (в модуле app.core.jwt_tokens)</a>
 </li>
         <li><a href="config.html#app.db.models.CartCenterData.rules">rules (атрибут app.db.models.CartCenterData)</a>
+
+        <ul>
+          <li><a href="info.html#app.features.info.schemas.CartingData.rules">(атрибут app.features.info.schemas.CartingData)</a>
 </li>
+        </ul></li>
         <li><a href="config.html#app.db.models.RunCart.run">run (атрибут app.db.models.RunCart)</a>
 </li>
         <li><a href="config.html#app.db.models.Run">Run (класс в app.db.models)</a>
@@ -769,12 +974,40 @@
   <h2>U</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="info.html#app.features.info.route.update_cart">update_cart() (в модуле app.features.info.route)</a>
+
+        <ul>
+          <li><a href="cart_repository.html#app.repositories.cart_repository.CartRepository.update_cart">(метод app.repositories.cart_repository.CartRepository)</a>
+</li>
+          <li><a href="cart_service.html#app.services.cart_service.CartService.update_cart">(метод app.services.cart_service.CartService)</a>
+</li>
+        </ul></li>
+        <li><a href="info.html#app.features.info.route.update_cart_model">update_cart_model() (в модуле app.features.info.route)</a>
+
+        <ul>
+          <li><a href="cart_repository.html#app.repositories.cart_repository.CartRepository.update_cart_model">(метод app.repositories.cart_repository.CartRepository)</a>
+</li>
+          <li><a href="cart_service.html#app.services.cart_service.CartService.update_cart_model">(метод app.services.cart_service.CartService)</a>
+</li>
+        </ul></li>
+        <li><a href="info.html#app.features.info.route.update_info">update_info() (в модуле app.features.info.route)</a>
+
+        <ul>
+          <li><a href="info_repository.html#app.repositories.info_repository.InfoRepository.update_info">(метод app.repositories.info_repository.InfoRepository)</a>
+</li>
+          <li><a href="info_service.html#app.services.info_service.InfoService.update_info">(метод app.services.info_service.InfoService)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="info.html#app.features.info.schemas.UpdateCartModelPayload">UpdateCartModelPayload (класс в app.features.info.schemas)</a>
+</li>
+        <li><a href="info.html#app.features.info.schemas.UpdateCartPayload">UpdateCartPayload (класс в app.features.info.schemas)</a>
+</li>
         <li><a href="config.html#app.db.models.User">User (класс в app.db.models)</a>
 </li>
         <li><a href="user_repository.html#app.repositories.user_repository.UserRepository">UserRepository (класс в app.repositories.user_repository)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="config.html#app.db.models.Role.users">users (атрибут app.db.models.Role)</a>
 </li>
         <li><a href="user_service.html#app.services.user_service.UserService">UserService (класс в app.services.user_service)</a>

@@ -8,11 +8,21 @@ from app.db.models import Cart, CartCenterData, CartModel
 
 
 class InfoRepository:
+    """Читает данные центра и прайс-лист, сохраняет адрес и правила.
+
+    Args:
+        session: Асинхронная сессия SQLAlchemy для текущего запроса.
+    """
+
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
     async def get_info(self) -> CartCenterInfo | None:
-        """Читает первую запись с данными центра по возрастанию ID."""
+        """Читает запись центра с наименьшим ID.
+
+        Returns:
+            Адрес и правила центра или None, если записи нет.
+        """
         statement = (
             select(CartCenterData.address, CartCenterData.rules)
             .order_by(CartCenterData.id)
@@ -25,7 +35,11 @@ class InfoRepository:
         return CartCenterInfo(address=row.address, rules=row.rules)
 
     async def get_cart_models(self) -> list[CartModelInfo]:
-        """Читает модели по возрастанию ID и считает карты каждой модели."""
+        """Читает модели картов для прайс-листа.
+
+        Returns:
+            Список моделей по возрастанию ID с общим числом картов каждой модели.
+        """
         statement = (
             select(
                 CartModel.id.label("cart_model_id"),
@@ -51,7 +65,15 @@ class InfoRepository:
         ]
 
     async def update_info(self, *, address: str, rules: str) -> CartCenterInfo | None:
-        """Сохраняет адрес и правила и возвращает обновлённые данные."""
+        """Обновляет запись центра с наименьшим ID.
+
+        Args:
+            address: Новый адрес.
+            rules: Новые правила.
+
+        Returns:
+            Обновлённая запись или None, если записи нет.
+        """
         center_id = select(CartCenterData.id).order_by(CartCenterData.id).limit(1)
         statement = (
             update(CartCenterData)

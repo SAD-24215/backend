@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="Сервисы" href="services.html"><link rel="prev" title="Репозитории" href="repositories.html">
+<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="Репозиторий картинг-центра" href="info_repository.html"><link rel="prev" title="Репозитории" href="repositories.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>Репозиторий пользователей - документация Carting Docs</title>
@@ -197,14 +197,19 @@
 <li class="toctree-l2"><a class="reference internal" href="jwt_tokens.html">Токены доступа и обновления</a></li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="repositories.html">Репозитории</a><input aria-label="Toggle navigation of Репозитории" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Репозиторий пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_repository.html">Репозиторий картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_repository.html">Репозиторий картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="services.html">Сервисы</a><input aria-label="Toggle navigation of Сервисы" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user_service.html">Сервис пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_service.html">Сервис картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_service.html">Сервис картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="features.html">Маршруты</a><input aria-label="Toggle navigation of Маршруты" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user.html">API пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">API картинг-центра</a></li>
 </ul>
 </li>
 </ul>
@@ -243,9 +248,12 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-app.repositories.user_repository">
-<span id="id1"></span><h1>Репозиторий пользователей<a class="headerlink" href="#module-app.repositories.user_repository" title="Ссылка на этот заголовок">¶</a></h1>
-<p>Запросы к базе данных для регистрации и входа пользователей.</p>
+          <section id="id1">
+<h1>Репозиторий пользователей<a class="headerlink" href="#id1" title="Ссылка на этот заголовок">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">UserRepository</span></code> создаёт аккаунты, привязывает учётные данные и читает роли
+из БД. При сохранении и поиске email используется его нормализованная форма.
+Методы создания возвращают <code class="docutils literal notranslate"><span class="pre">UserIdentity</span></code> с внутренним ID и системным UUID.</p>
+<p id="module-app.repositories.user_repository">Запросы к базе данных для регистрации и входа пользователей.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="app.repositories.user_repository.UserRepository">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.repositories.user_repository.</span></span><span class="sig-name descname"><span class="pre">UserRepository</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AsyncSession</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/repositories/user_repository.html#UserRepository"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.repositories.user_repository.UserRepository" title="Ссылка на это определение">¶</a></dt>
@@ -272,7 +280,21 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="app.repositories.user_repository.UserRepository.create_customer">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">create_customer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">login</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UserIdentity</span></span></span><a class="reference internal" href="_modules/app/repositories/user_repository.html#UserRepository.create_customer"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.repositories.user_repository.UserRepository.create_customer" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Создаёт аккаунт для входа по email и паролю с новым системным UUID.</p>
+<dd><p>Создаёт аккаунт клиента с новым системным UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>login</strong> – Email для входа.</p></li>
+<li><p><strong>password_hash</strong> – Хеш пароля для сохранения.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Внутренний ID и системный UUID клиента.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>LoginAlreadyExistsError</strong> – Email уже занят.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -289,19 +311,53 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="app.repositories.user_repository.UserRepository.create_employee">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">create_employee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">login</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UserIdentity</span></span></span><a class="reference internal" href="_modules/app/repositories/user_repository.html#UserRepository.create_employee"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.repositories.user_repository.UserRepository.create_employee" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Создаёт аккаунт сотрудника с указанной ролью и новым системным UUID.</p>
+<dd><p>Создаёт аккаунт сотрудника с новым системным UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>login</strong> – Email для входа.</p></li>
+<li><p><strong>password_hash</strong> – Хеш пароля для сохранения.</p></li>
+<li><p><strong>role</strong> – Имя существующей роли сотрудника.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Внутренний ID и системный UUID сотрудника.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>LoginAlreadyExistsError</strong> – Email уже занят.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="app.repositories.user_repository.UserRepository.get_role_name">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_role_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/app/repositories/user_repository.html#UserRepository.get_role_name"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.repositories.user_repository.UserRepository.get_role_name" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Возвращает текущую роль пользователя по внутреннему ID.</p>
+<dd><p>Ищет роль пользователя по внутреннему ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> – Внутренний ID пользователя.</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Имя роли или None, если пользователь не найден.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="app.repositories.user_repository.UserRepository.get_role_name_by_email">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_role_name_by_email</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/app/repositories/user_repository.html#UserRepository.get_role_name_by_email"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.repositories.user_repository.UserRepository.get_role_name_by_email" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Возвращает роль пользователя с указанным email.</p>
+<dd><p>Ищет роль пользователя по нормализованному email.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>email</strong> – Email пользователя.</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Имя роли или None, если email не найден.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>EmailNotValidError</strong> – Некорректный формат адреса.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -352,12 +408,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="services.html">
+          <a class="next-page" href="info_repository.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Сервисы</div>
+                <div class="title">Репозиторий картинг-центра</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

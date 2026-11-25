@@ -53,7 +53,18 @@ class UserRepository:
         return result.scalar_one_or_none()
 
     async def create_customer(self, *, login: str, password_hash: str) -> UserIdentity:
-        """Создаёт аккаунт для входа по email и паролю с новым системным UUID."""
+        """Создаёт аккаунт клиента с новым системным UUID.
+
+        Args:
+            login: Email для входа.
+            password_hash: Хеш пароля для сохранения.
+
+        Returns:
+            Внутренний ID и системный UUID клиента.
+
+        Raises:
+            LoginAlreadyExistsError: Email уже занят.
+        """
         return await self._create_user(
             role="customer", login=login, password_hash=password_hash
         )
@@ -69,13 +80,32 @@ class UserRepository:
     async def create_employee(
         self, *, login: str, password_hash: str, role: str
     ) -> UserIdentity:
-        """Создаёт аккаунт сотрудника с указанной ролью и новым системным UUID."""
+        """Создаёт аккаунт сотрудника с новым системным UUID.
+
+        Args:
+            login: Email для входа.
+            password_hash: Хеш пароля для сохранения.
+            role: Имя существующей роли сотрудника.
+
+        Returns:
+            Внутренний ID и системный UUID сотрудника.
+
+        Raises:
+            LoginAlreadyExistsError: Email уже занят.
+        """
         return await self._create_user(
             role=role, login=login, password_hash=password_hash
         )
 
     async def get_role_name(self, user_id: int) -> str | None:
-        """Возвращает текущую роль пользователя по внутреннему ID."""
+        """Ищет роль пользователя по внутреннему ID.
+
+        Args:
+            user_id: Внутренний ID пользователя.
+
+        Returns:
+            Имя роли или None, если пользователь не найден.
+        """
         statement = (
             select(Role.name)
             .join(User, User.role_id == Role.id)
@@ -85,7 +115,17 @@ class UserRepository:
             return await self.session.scalar(statement)
 
     async def get_role_name_by_email(self, email: str) -> str | None:
-        """Возвращает роль пользователя с указанным email."""
+        """Ищет роль пользователя по нормализованному email.
+
+        Args:
+            email: Email пользователя.
+
+        Returns:
+            Имя роли или None, если email не найден.
+
+        Raises:
+            EmailNotValidError: Некорректный формат адреса.
+        """
         statement = (
             select(Role.name)
             .join(User, User.role_id == Role.id)

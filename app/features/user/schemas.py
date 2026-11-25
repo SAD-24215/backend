@@ -44,7 +44,17 @@ class NewCredentialsPayload(LoginPayload):
     @field_validator("login")
     @classmethod
     def validate_login_email(cls, login: str) -> str:
-        """Проверяет формат email без DNS-запроса и возвращает исходную строку."""
+        """Проверяет формат email без DNS-запроса.
+
+        Args:
+            login: Email из данных для регистрации или создания сотрудника.
+
+        Returns:
+            Исходная строка email.
+
+        Raises:
+            EmailNotValidError: Некорректный формат адреса.
+        """
         validate_email(login, check_deliverability=False)
         return login
 
@@ -60,7 +70,11 @@ class SignupPayload(NewCredentialsPayload):
 
 
 class AddEmployeePayload(NewCredentialsPayload):
-    """Email, пароль и роль нового сотрудника."""
+    """Учётные данные нового сотрудника.
+
+    Attributes:
+        role: Роль admin или marshal. Вариант marshall принимается как marshal.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -68,7 +82,12 @@ class AddEmployeePayload(NewCredentialsPayload):
 
 
 class EmployeeResponse(BaseModel):
-    """Внутренний ID и роль созданного сотрудника."""
+    """Данные созданного сотрудника.
+
+    Attributes:
+        id: Внутренний ID сотрудника.
+        role: Роль сотрудника в БД.
+    """
 
     id: int
     role: Literal["admin", "marshal"]
@@ -97,4 +116,10 @@ class TokenResponse(RefreshAccessTokenResponse):
 
 
 class RoleResponse(BaseModel):
+    """Ответ с ролью пользователя.
+
+    Attributes:
+        role: Текущая роль из БД, admin, marshal или customer.
+    """
+
     role: Literal["admin", "marshal", "customer"]

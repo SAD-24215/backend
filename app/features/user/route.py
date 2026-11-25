@@ -1,4 +1,4 @@
-"""Эндпоинты регистрации, входа, обновления токенов и создания сотрудников."""
+"""Эндпоинты регистрации, входа, обновления токенов и управления ролями."""
 
 from math import ceil
 from time import time
@@ -67,7 +67,18 @@ def get_user_service(
 async def get_current_user_id(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(access_bearer)],
 ) -> int:
-    """Проверяет access-токен и возвращает ID пользователя из JWT."""
+    """Получает ID пользователя из действительного access-токена.
+
+    Args:
+        credentials: Заголовок Bearer, обработанный FastAPI.
+
+    Returns:
+        Внутренний ID пользователя из поля sub.
+
+    Raises:
+        HTTPException: HTTP 401 при отсутствующем или недействительном токене,
+            HTTP 503 при отсутствующем ключе подписи.
+    """
     if credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -98,7 +109,15 @@ async def require_admin(
     user_id: Annotated[int, Depends(get_current_user_id)],
     service: Annotated[UserService, Depends(get_user_service)],
 ) -> None:
-    """Проверяет текущую роль пользователя в БД."""
+    """Проверяет доступ администратора.
+
+    Args:
+        user_id: Внутренний ID пользователя из проверенного access-токена.
+        service: Сервис чтения текущей роли из БД.
+
+    Raises:
+        HTTPException: HTTP 403, если у пользователя нет роли admin.
+    """
     if not await service.is_admin(user_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -115,6 +134,9 @@ async def token_response(
         identity: Внутренний и системный идентификаторы пользователя.
         secret_key: Ключ подписи access-токена.
         redis: Клиент для сохранения refresh-токена.
+
+    Returns:
+        Access-токен, refresh-токен и системный ID аккаунта.
 
     Raises:
         HTTPException: HTTP 503 при ошибке Redis.
@@ -143,11 +165,17 @@ async def signup_classic(
 ) -> TokenResponse:
     """Регистрирует новый аккаунт или привязывает email и пароль по системному ID.
 
+    Args:
+        payload: Email, пароль и необязательный системный ID аккаунта.
+        service: Сервис регистрации пользователей.
+        redis: Хранилище refresh-токенов.
+
     Returns:
         Пара токенов и системный ID пользователя.
 
     Raises:
-        HTTPException: HTTP 401 при неверном системном ID или HTTP 409 при конфликте.
+        HTTPException: HTTP 401 при неизвестном системном ID, HTTP 409 при
+            конфликте учётных данных или HTTP 503 при ошибке Redis.
     """
     secret_key = settings.jwt_secret_key.get_secret_value()
     password = payload.password.get_secret_value()
@@ -181,6 +209,9 @@ async def signup_classic(
 async def limit_login_attempts(request: Request) -> None:
     """Ограничивает вход пятью запросами в минуту на IP и маршрут.
 
+    Args:
+        request: Запрос, из которого берутся IP клиента и путь.
+
     Raises:
         HTTPException: HTTP 429 с заголовком Retry-After при превышении лимита.
     """
@@ -204,8 +235,17 @@ async def login_classic(
 ) -> TokenResponse:
     """Проверяет email и пароль и выдаёт пару токенов и системный ID.
 
+    Args:
+        payload: Email и пароль для входа.
+        service: Сервис проверки учётных данных.
+        redis: Хранилище refresh-токенов.
+
+    Returns:
+        Пара токенов и системный ID пользователя.
+
     Raises:
-        HTTPException: HTTP 401 при неверном email или пароле.
+        HTTPException: HTTP 401 при неверном email или пароле, HTTP 503
+            при ошибке Redis.
     """
     secret_key = settings.jwt_secret_key.get_secret_value()
 
@@ -229,8 +269,17 @@ async def login_with_id(
 ) -> TokenResponse:
     """Проверяет системный ID и выдаёт пару токенов.
 
+    Args:
+        payload: Системный ID аккаунта.
+        service: Сервис поиска аккаунта по системному ID.
+        redis: Хранилище refresh-токенов.
+
+    Returns:
+        Пара токенов и системный ID пользователя.
+
     Raises:
-        HTTPException: HTTP 401, если вход по указанному ID недоступен.
+        HTTPException: HTTP 401 при неизвестном системном ID, HTTP 503
+            при ошибке Redis.
     """
     secret_key = settings.jwt_secret_key.get_secret_value()
     identity = await service.authenticate_with_id(str(payload.system_id))
@@ -249,8 +298,15 @@ async def signup_with_id(
 ) -> TokenResponse:
     """Создаёт аккаунт без email и пароля.
 
+    Args:
+        service: Сервис регистрации пользователей.
+        redis: Хранилище refresh-токенов.
+
     Returns:
         Пара токенов и новый системный ID.
+
+    Raises:
+        HTTPException: HTTP 503 при ошибке Redis.
     """
     secret_key = settings.jwt_secret_key.get_secret_value()
     identity = await service.signup_with_id()
@@ -262,6 +318,10 @@ async def get_refresh_token_route(
     payload: TokenPayload, redis: RedisClient
 ) -> RefreshAccessTokenResponse:
     """Обменивает действующий одноразовый refresh-токен на новую пару.
+
+    Args:
+        payload: Текущий refresh-токен.
+        redis: Хранилище refresh-токенов.
 
     Returns:
         Access-токен и новый refresh-токен.
@@ -304,12 +364,15 @@ async def add_employee(
 ) -> EmployeeResponse:
     """Создаёт сотрудника по email и паролю с новым системным UUID.
 
+    Args:
+        payload: Email, пароль и роль сотрудника.
+        service: Сервис создания сотрудников.
+
     Returns:
         Внутренний ID и роль сотрудника.
 
     Raises:
-        HTTPException: HTTP 401 при недействительном токене, HTTP 403 при отсутствии
-            роли администратора или HTTP 409, если email уже занят.
+        HTTPException: HTTP 409, если email уже занят.
     """
     role = "marshal" if payload.role == "marshall" else payload.role
     try:
@@ -330,7 +393,18 @@ async def get_role(
     user_id: Annotated[int, Depends(get_current_user_id)],
     service: Annotated[UserService, Depends(get_user_service)],
 ) -> RoleResponse:
-    """Возвращает текущую роль пользователя из БД."""
+    """Читает текущую роль пользователя из БД.
+
+    Args:
+        user_id: Внутренний ID пользователя из проверенного access-токена.
+        service: Сервис чтения роли пользователя.
+
+    Returns:
+        Ответ с ролью admin, marshal или customer.
+
+    Raises:
+        HTTPException: HTTP 401, если аккаунт больше не найден.
+    """
     role = await service.get_role_name(user_id)
     if role is None:
         raise HTTPException(

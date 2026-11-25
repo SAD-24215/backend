@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="prev" title="Маршруты" href="features.html">
+<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="API картинг-центра" href="info.html"><link rel="prev" title="Маршруты" href="features.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>API пользователей - документация Carting Docs</title>
@@ -197,14 +197,19 @@
 <li class="toctree-l2"><a class="reference internal" href="jwt_tokens.html">Токены доступа и обновления</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="repositories.html">Репозитории</a><input aria-label="Toggle navigation of Репозитории" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user_repository.html">Репозиторий пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_repository.html">Репозиторий картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_repository.html">Репозиторий картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="services.html">Сервисы</a><input aria-label="Toggle navigation of Сервисы" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user_service.html">Сервис пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_service.html">Сервис картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_service.html">Сервис картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="features.html">Маршруты</a><input aria-label="Toggle navigation of Маршруты" checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">API пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">API картинг-центра</a></li>
 </ul>
 </li>
 </ul>
@@ -245,44 +250,67 @@
         <article role="main" id="furo-main-content">
           <section id="api">
 <h1>API пользователей<a class="headerlink" href="#api" title="Ссылка на этот заголовок">¶</a></h1>
-<p>Все маршруты принимают запросы <code class="docutils literal notranslate"><span class="pre">POST</span></code>:</p>
+<section id="id1">
+<h2>Регистрация и вход<a class="headerlink" href="#id1" title="Ссылка на этот заголовок">¶</a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">/api/v1/users/id</span></code> создаёт аккаунт с новым системным ID.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">/api/v1/users</span></code> создаёт аккаунт по email и паролю. Если передан <code class="docutils literal notranslate"><span class="pre">system_id</span></code>, привязывает их к существующему аккаунту.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">/api/v1/sessions</span></code> выполняет вход по email и паролю.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">/api/v1/sessions/id</span></code> выполняет вход по системному ID любого аккаунта.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">/api/v1/tokens/refresh</span></code> обменивает refresh-токен на новую пару токенов.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/v1/users</span></code> принимает <code class="docutils literal notranslate"><span class="pre">login</span></code> (email), <code class="docutils literal notranslate"><span class="pre">password</span></code> и необязательный
+<code class="docutils literal notranslate"><span class="pre">system_id</span></code>. Без системного ID создаёт аккаунт с ролью <code class="docutils literal notranslate"><span class="pre">customer</span></code>. С системным
+ID привязывает email и пароль к существующему аккаунту. Ответ <code class="docutils literal notranslate"><span class="pre">201</span></code>. Неизвестный
+системный ID даёт <code class="docutils literal notranslate"><span class="pre">401</span></code>, занятый email или уже привязанные данные — <code class="docutils literal notranslate"><span class="pre">409</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/v1/users/id</span></code> создаёт аккаунт с новым UUIDv4 и ролью <code class="docutils literal notranslate"><span class="pre">customer</span></code>.
+Тело запроса не требуется. Ответ <code class="docutils literal notranslate"><span class="pre">201</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/v1/sessions</span></code> принимает <code class="docutils literal notranslate"><span class="pre">login</span></code> и <code class="docutils literal notranslate"><span class="pre">password</span></code>, а
+<code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/v1/sessions/id</span></code> принимает <code class="docutils literal notranslate"><span class="pre">system_id</span></code> любого аккаунта.
+Успешный вход возвращает <code class="docutils literal notranslate"><span class="pre">200</span></code>, неверные данные — <code class="docutils literal notranslate"><span class="pre">401</span></code>.
+На каждый маршрут входа действует лимит пять запросов в минуту на IP.
+При превышении API возвращает <code class="docutils literal notranslate"><span class="pre">429</span></code> с заголовком <code class="docutils literal notranslate"><span class="pre">Retry-After</span></code>.</p></li>
 </ul>
+<p>При регистрации или входе ответ содержит <code class="docutils literal notranslate"><span class="pre">access_token</span></code>, <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>
+и <code class="docutils literal notranslate"><span class="pre">system_id</span></code>.</p>
+</section>
+<section id="id2">
+<h2>Обновление токенов<a class="headerlink" href="#id2" title="Ссылка на этот заголовок">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/v1/tokens/refresh</span></code> принимает <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> в теле запроса.
+Ответ <code class="docutils literal notranslate"><span class="pre">200</span></code> содержит новый access-токен и новый refresh-токен. Обмен делает
+предыдущий refresh недействительным и сохраняет исходный срок сессии. Просроченный,
+неизвестный или уже использованный токен даёт <code class="docutils literal notranslate"><span class="pre">401</span></code>.
+Если Redis недоступен, выдача или обновление пары токенов возвращает <code class="docutils literal notranslate"><span class="pre">503</span></code>.</p>
+</section>
+<section id="id3">
+<h2>Роли и сотрудники<a class="headerlink" href="#id3" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Оба маршрута принимают заголовок <code class="docutils literal notranslate"><span class="pre">Authorization:</span> <span class="pre">Bearer</span> <span class="pre">&lt;access_token&gt;</span></code>.
+Без действительного токена API возвращает <code class="docutils literal notranslate"><span class="pre">401</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/v1/roles</span></code> читает текущую роль пользователя из БД. Ответ <code class="docutils literal notranslate"><span class="pre">200</span></code>
+содержит поле <code class="docutils literal notranslate"><span class="pre">role</span></code> со значением <code class="docutils literal notranslate"><span class="pre">admin</span></code>, <code class="docutils literal notranslate"><span class="pre">marshal</span></code> или <code class="docutils literal notranslate"><span class="pre">customer</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/v1/users/employee</span></code> доступен администратору и принимает
+<code class="docutils literal notranslate"><span class="pre">login</span></code>, <code class="docutils literal notranslate"><span class="pre">password</span></code> и <code class="docutils literal notranslate"><span class="pre">role</span></code>. Для роли допустимы <code class="docutils literal notranslate"><span class="pre">admin</span></code> и <code class="docutils literal notranslate"><span class="pre">marshal</span></code>.
+Написание <code class="docutils literal notranslate"><span class="pre">marshall</span></code> сохраняется как <code class="docutils literal notranslate"><span class="pre">marshal</span></code>. Сервер генерирует системный
+ID и возвращает <code class="docutils literal notranslate"><span class="pre">201</span></code> с полями <code class="docutils literal notranslate"><span class="pre">id</span></code> и <code class="docutils literal notranslate"><span class="pre">role</span></code>. Для пользователя без роли
+администратора ответ <code class="docutils literal notranslate"><span class="pre">403</span></code>, при занятом email — <code class="docutils literal notranslate"><span class="pre">409</span></code>.</p></li>
+</ul>
+</section>
 <section id="module-app.features.user.route">
-<span id="id1"></span><h2>Эндпоинты<a class="headerlink" href="#module-app.features.user.route" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Эндпоинты регистрации, входа, обновления токенов и создания сотрудников.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="app.features.user.route.get_refresh_token">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.route.</span></span><span class="sig-name descname"><span class="pre">get_refresh_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Redis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/app/core/jwt_tokens.html#get_refresh_token"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.route.get_refresh_token" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Выпускает refresh-токен и сохраняет его хеш в Redis с заданным временем жизни.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>redis</strong> – Асинхронный клиент Redis.</p></li>
-<li><p><strong>user_id</strong> – Внутренний ID пользователя.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Refresh-токен для передачи клиенту.</p>
-</dd>
-</dl>
-</dd></dl>
-
+<span id="id4"></span><h2>Эндпоинты<a class="headerlink" href="#module-app.features.user.route" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Эндпоинты регистрации, входа, обновления токенов и управления ролями.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="app.features.user.route.signup_classic">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.route.</span></span><span class="sig-name descname"><span class="pre">signup_classic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#app.features.user.schemas.SignupPayload" title="app.features.user.schemas.SignupPayload"><span class="pre">SignupPayload</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="user_service.html#app.services.user_service.UserService" title="app.services.user_service.UserService"><span class="pre">UserService</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_user_service</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app.features.user.schemas.TokenResponse" title="app.features.user.schemas.TokenResponse"><span class="pre">TokenResponse</span></a></span></span><a class="reference internal" href="_modules/app/features/user/route.html#signup_classic"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.route.signup_classic" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Регистрирует новый аккаунт или привязывает email и пароль по системному ID.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Результат<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Пара токенов и системный ID пользователя.</p>
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> – Email, пароль и необязательный системный ID аккаунта.</p></li>
+<li><p><strong>service</strong> – Сервис регистрации пользователей.</p></li>
+<li><p><strong>redis</strong> – Хранилище refresh-токенов.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Исключение<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>HTTPException</strong> – HTTP 401 при неверном системном ID или HTTP 409 при конфликте.</p>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Пара токенов и системный ID пользователя.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 401 при неизвестном системном ID, HTTP 409 при
+    конфликте учётных данных или HTTP 503 при ошибке Redis.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -292,8 +320,19 @@
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.route.</span></span><span class="sig-name descname"><span class="pre">login_classic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#app.features.user.schemas.LoginPayload" title="app.features.user.schemas.LoginPayload"><span class="pre">LoginPayload</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="user_service.html#app.services.user_service.UserService" title="app.services.user_service.UserService"><span class="pre">UserService</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_user_service</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app.features.user.schemas.TokenResponse" title="app.features.user.schemas.TokenResponse"><span class="pre">TokenResponse</span></a></span></span><a class="reference internal" href="_modules/app/features/user/route.html#login_classic"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.route.login_classic" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Проверяет email и пароль и выдаёт пару токенов и системный ID.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> – Email и пароль для входа.</p></li>
+<li><p><strong>service</strong> – Сервис проверки учётных данных.</p></li>
+<li><p><strong>redis</strong> – Хранилище refresh-токенов.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Пара токенов и системный ID пользователя.</p>
+</dd>
 <dt class="field-odd">Исключение<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 401 при неверном email или пароле.</p>
+<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 401 при неверном email или пароле, HTTP 503
+    при ошибке Redis.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -303,8 +342,19 @@
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.route.</span></span><span class="sig-name descname"><span class="pre">login_with_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#app.features.user.schemas.SystemIdPayload" title="app.features.user.schemas.SystemIdPayload"><span class="pre">SystemIdPayload</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="user_service.html#app.services.user_service.UserService" title="app.services.user_service.UserService"><span class="pre">UserService</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_user_service</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app.features.user.schemas.TokenResponse" title="app.features.user.schemas.TokenResponse"><span class="pre">TokenResponse</span></a></span></span><a class="reference internal" href="_modules/app/features/user/route.html#login_with_id"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.route.login_with_id" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Проверяет системный ID и выдаёт пару токенов.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> – Системный ID аккаунта.</p></li>
+<li><p><strong>service</strong> – Сервис поиска аккаунта по системному ID.</p></li>
+<li><p><strong>redis</strong> – Хранилище refresh-токенов.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Пара токенов и системный ID пользователя.</p>
+</dd>
 <dt class="field-odd">Исключение<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 401, если вход по указанному ID недоступен.</p>
+<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 401 при неизвестном системном ID, HTTP 503
+    при ошибке Redis.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -314,15 +364,84 @@
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.route.</span></span><span class="sig-name descname"><span class="pre">signup_with_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="user_service.html#app.services.user_service.UserService" title="app.services.user_service.UserService"><span class="pre">UserService</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_user_service</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app.features.user.schemas.TokenResponse" title="app.features.user.schemas.TokenResponse"><span class="pre">TokenResponse</span></a></span></span><a class="reference internal" href="_modules/app/features/user/route.html#signup_with_id"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.route.signup_with_id" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Создаёт аккаунт без email и пароля.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Результат<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Пара токенов и новый системный ID.</p>
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service</strong> – Сервис регистрации пользователей.</p></li>
+<li><p><strong>redis</strong> – Хранилище refresh-токенов.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Пара токенов и новый системный ID.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 503 при ошибке Redis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.features.user.route.get_refresh_token_route">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.route.</span></span><span class="sig-name descname"><span class="pre">get_refresh_token_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#app.features.user.schemas.TokenPayload" title="app.features.user.schemas.TokenPayload"><span class="pre">TokenPayload</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_redis</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app.features.user.schemas.RefreshAccessTokenResponse" title="app.features.user.schemas.RefreshAccessTokenResponse"><span class="pre">RefreshAccessTokenResponse</span></a></span></span><a class="reference internal" href="_modules/app/features/user/route.html#get_refresh_token_route"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.route.get_refresh_token_route" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Обменивает действующий одноразовый refresh-токен на новую пару.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> – Текущий refresh-токен.</p></li>
+<li><p><strong>redis</strong> – Хранилище refresh-токенов.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Access-токен и новый refresh-токен.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 401 при недействительном refresh или HTTP 503 при ошибке Redis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.features.user.route.add_employee">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.route.</span></span><span class="sig-name descname"><span class="pre">add_employee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#app.features.user.schemas.AddEmployeePayload" title="app.features.user.schemas.AddEmployeePayload"><span class="pre">AddEmployeePayload</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="user_service.html#app.services.user_service.UserService" title="app.services.user_service.UserService"><span class="pre">UserService</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_user_service</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app.features.user.schemas.EmployeeResponse" title="app.features.user.schemas.EmployeeResponse"><span class="pre">EmployeeResponse</span></a></span></span><a class="reference internal" href="_modules/app/features/user/route.html#add_employee"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.route.add_employee" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Создаёт сотрудника по email и паролю с новым системным UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> – Email, пароль и роль сотрудника.</p></li>
+<li><p><strong>service</strong> – Сервис создания сотрудников.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Внутренний ID и роль сотрудника.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 409, если email уже занят.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.features.user.route.get_role">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.route.</span></span><span class="sig-name descname"><span class="pre">get_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_current_user_id</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="user_service.html#app.services.user_service.UserService" title="app.services.user_service.UserService"><span class="pre">UserService</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Depends</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">dependency</span></span><span class="o"><span class="pre">=</span></span><span class="pre">get_user_service</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app.features.user.schemas.RoleResponse" title="app.features.user.schemas.RoleResponse"><span class="pre">RoleResponse</span></a></span></span><a class="reference internal" href="_modules/app/features/user/route.html#get_role"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.route.get_role" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Читает текущую роль пользователя из БД.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> – Внутренний ID пользователя из проверенного access-токена.</p></li>
+<li><p><strong>service</strong> – Сервис чтения роли пользователя.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Ответ с ролью admin, marshal или customer.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>HTTPException</strong> – HTTP 401, если аккаунт больше не найден.</p>
 </dd>
 </dl>
 </dd></dl>
 
 </section>
 <section id="module-app.features.user.schemas">
-<span id="id2"></span><h2>Схемы запросов и ответов<a class="headerlink" href="#module-app.features.user.schemas" title="Ссылка на этот заголовок">¶</a></h2>
+<span id="id5"></span><h2>Схемы запросов и ответов<a class="headerlink" href="#module-app.features.user.schemas" title="Ссылка на этот заголовок">¶</a></h2>
 <p>Схемы запросов и ответов API авторизации.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="app.features.user.schemas.LoginPayload">
@@ -411,7 +530,18 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="app.features.user.schemas.NewCredentialsPayload.validate_login_email">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">validate_login_email</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">login</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/app/features/user/schemas.html#NewCredentialsPayload.validate_login_email"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.schemas.NewCredentialsPayload.validate_login_email" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Проверяет формат email без DNS-запроса и возвращает исходную строку.</p>
+<dd><p>Проверяет формат email без DNS-запроса.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>login</strong> – Email из данных для регистрации или создания сотрудника.</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Исходная строка email.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>EmailNotValidError</strong> – Некорректный формат адреса.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -448,7 +578,18 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="app.features.user.schemas.AddEmployeePayload">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.schemas.</span></span><span class="sig-name descname"><span class="pre">AddEmployeePayload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">login</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">MinLen</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">min_length</span></span><span class="o"><span class="pre">=</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">MaxLen</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">max_length</span></span><span class="o"><span class="pre">=</span></span><span class="m"><span class="pre">100</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">_PydanticGeneralMetadata</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="s"><span class="pre">'^[^\\x00]+$'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">SecretStr</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">MinLen</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">min_length</span></span><span class="o"><span class="pre">=</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">MaxLen</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">max_length</span></span><span class="o"><span class="pre">=</span></span><span class="m"><span class="pre">1024</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'admin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'marshal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'marshall'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/features/user/schemas.html#AddEmployeePayload"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.schemas.AddEmployeePayload" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Email, пароль и роль нового сотрудника.</p>
+<dd><p>Учётные данные нового сотрудника.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.features.user.schemas.AddEmployeePayload.role">
+<span class="sig-name descname"><span class="pre">role</span></span><a class="headerlink" href="#app.features.user.schemas.AddEmployeePayload.role" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Роль admin или marshal. Вариант marshall принимается как marshal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Literal[„admin“, „marshal“, „marshall“]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="app.features.user.schemas.AddEmployeePayload.model_config">
 <span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span><a class="headerlink" href="#app.features.user.schemas.AddEmployeePayload.model_config" title="Ссылка на это определение">¶</a></dt>
@@ -460,7 +601,29 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="app.features.user.schemas.EmployeeResponse">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.schemas.</span></span><span class="sig-name descname"><span class="pre">EmployeeResponse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'admin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'marshal'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/features/user/schemas.html#EmployeeResponse"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.schemas.EmployeeResponse" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Внутренний ID и роль созданного сотрудника.</p>
+<dd><p>Данные созданного сотрудника.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.features.user.schemas.EmployeeResponse.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.features.user.schemas.EmployeeResponse.id" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Внутренний ID сотрудника.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.features.user.schemas.EmployeeResponse.role">
+<span class="sig-name descname"><span class="pre">role</span></span><a class="headerlink" href="#app.features.user.schemas.EmployeeResponse.role" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Роль сотрудника в БД.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Literal[„admin“, „marshal“]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="app.features.user.schemas.EmployeeResponse.model_config">
 <span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#app.features.user.schemas.EmployeeResponse.model_config" title="Ссылка на это определение">¶</a></dt>
@@ -529,7 +692,19 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="app.features.user.schemas.RoleResponse">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.features.user.schemas.</span></span><span class="sig-name descname"><span class="pre">RoleResponse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'admin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'marshal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'customer'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/features/user/schemas.html#RoleResponse"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.features.user.schemas.RoleResponse" title="Ссылка на это определение">¶</a></dt>
-<dd><dl class="py attribute">
+<dd><p>Ответ с ролью пользователя.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.features.user.schemas.RoleResponse.role">
+<span class="sig-name descname"><span class="pre">role</span></span><a class="headerlink" href="#app.features.user.schemas.RoleResponse.role" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Текущая роль из БД, admin, marshal или customer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Literal[„admin“, „marshal“, „customer“]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="app.features.user.schemas.RoleResponse.model_config">
 <span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#app.features.user.schemas.RoleResponse.model_config" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
@@ -545,7 +720,15 @@
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="info.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API картинг-центра</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           <a class="prev-page" href="features.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
@@ -588,12 +771,17 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">API пользователей</a><ul>
+<li><a class="reference internal" href="#id1">Регистрация и вход</a></li>
+<li><a class="reference internal" href="#id2">Обновление токенов</a></li>
+<li><a class="reference internal" href="#id3">Роли и сотрудники</a></li>
 <li><a class="reference internal" href="#module-app.features.user.route">Эндпоинты</a><ul>
-<li><a class="reference internal" href="#app.features.user.route.get_refresh_token"><code class="docutils literal notranslate"><span class="pre">get_refresh_token()</span></code></a></li>
 <li><a class="reference internal" href="#app.features.user.route.signup_classic"><code class="docutils literal notranslate"><span class="pre">signup_classic()</span></code></a></li>
 <li><a class="reference internal" href="#app.features.user.route.login_classic"><code class="docutils literal notranslate"><span class="pre">login_classic()</span></code></a></li>
 <li><a class="reference internal" href="#app.features.user.route.login_with_id"><code class="docutils literal notranslate"><span class="pre">login_with_id()</span></code></a></li>
 <li><a class="reference internal" href="#app.features.user.route.signup_with_id"><code class="docutils literal notranslate"><span class="pre">signup_with_id()</span></code></a></li>
+<li><a class="reference internal" href="#app.features.user.route.get_refresh_token_route"><code class="docutils literal notranslate"><span class="pre">get_refresh_token_route()</span></code></a></li>
+<li><a class="reference internal" href="#app.features.user.route.add_employee"><code class="docutils literal notranslate"><span class="pre">add_employee()</span></code></a></li>
+<li><a class="reference internal" href="#app.features.user.route.get_role"><code class="docutils literal notranslate"><span class="pre">get_role()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-app.features.user.schemas">Схемы запросов и ответов</a><ul>
@@ -624,10 +812,13 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#app.features.user.schemas.AddEmployeePayload"><code class="docutils literal notranslate"><span class="pre">AddEmployeePayload</span></code></a><ul>
+<li><a class="reference internal" href="#app.features.user.schemas.AddEmployeePayload.role"><code class="docutils literal notranslate"><span class="pre">AddEmployeePayload.role</span></code></a></li>
 <li><a class="reference internal" href="#app.features.user.schemas.AddEmployeePayload.model_config"><code class="docutils literal notranslate"><span class="pre">AddEmployeePayload.model_config</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#app.features.user.schemas.EmployeeResponse"><code class="docutils literal notranslate"><span class="pre">EmployeeResponse</span></code></a><ul>
+<li><a class="reference internal" href="#app.features.user.schemas.EmployeeResponse.id"><code class="docutils literal notranslate"><span class="pre">EmployeeResponse.id</span></code></a></li>
+<li><a class="reference internal" href="#app.features.user.schemas.EmployeeResponse.role"><code class="docutils literal notranslate"><span class="pre">EmployeeResponse.role</span></code></a></li>
 <li><a class="reference internal" href="#app.features.user.schemas.EmployeeResponse.model_config"><code class="docutils literal notranslate"><span class="pre">EmployeeResponse.model_config</span></code></a></li>
 </ul>
 </li>
@@ -643,6 +834,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#app.features.user.schemas.RoleResponse"><code class="docutils literal notranslate"><span class="pre">RoleResponse</span></code></a><ul>
+<li><a class="reference internal" href="#app.features.user.schemas.RoleResponse.role"><code class="docutils literal notranslate"><span class="pre">RoleResponse.role</span></code></a></li>
 <li><a class="reference internal" href="#app.features.user.schemas.RoleResponse.model_config"><code class="docutils literal notranslate"><span class="pre">RoleResponse.model_config</span></code></a></li>
 </ul>
 </li>

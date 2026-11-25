@@ -196,14 +196,19 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../jwt_tokens.html">Токены доступа и обновления</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../repositories.html">Репозитории</a><input aria-label="Toggle navigation of Репозитории" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../user_repository.html">Репозиторий пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../info_repository.html">Репозиторий картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cart_repository.html">Репозиторий картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../services.html">Сервисы</a><input aria-label="Toggle navigation of Сервисы" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../user_service.html">Сервис пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../info_service.html">Сервис картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cart_service.html">Сервис картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../features.html">Маршруты</a><input aria-label="Toggle navigation of Маршруты" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../user.html">API пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../info.html">API картинг-центра</a></li>
 </ul>
 </li>
 </ul>
@@ -300,7 +305,17 @@
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">"login"</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_login_email</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">login</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Проверяет формат email без DNS-запроса и возвращает исходную строку."""</span>
+<span class="w">        </span><span class="sd">"""Проверяет формат email без DNS-запроса.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            login: Email из данных для регистрации или создания сотрудника.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Исходная строка email.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EmailNotValidError: Некорректный формат адреса.</span>
+<span class="sd">        """</span>
         <span class="n">validate_email</span><span class="p">(</span><span class="n">login</span><span class="p">,</span> <span class="n">check_deliverability</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">login</span></div>
 </div>
@@ -323,7 +338,11 @@
 <div class="viewcode-block" id="AddEmployeePayload">
 <a class="viewcode-back" href="../../../../user.html#app.features.user.schemas.AddEmployeePayload">[документация]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AddEmployeePayload</span><span class="p">(</span><span class="n">NewCredentialsPayload</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Email, пароль и роль нового сотрудника."""</span>
+<span class="w">    </span><span class="sd">"""Учётные данные нового сотрудника.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        role: Роль admin или marshal. Вариант marshall принимается как marshal.</span>
+<span class="sd">    """</span>
 
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span>
 
@@ -334,7 +353,12 @@
 <div class="viewcode-block" id="EmployeeResponse">
 <a class="viewcode-back" href="../../../../user.html#app.features.user.schemas.EmployeeResponse">[документация]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EmployeeResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Внутренний ID и роль созданного сотрудника."""</span>
+<span class="w">    </span><span class="sd">"""Данные созданного сотрудника.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id: Внутренний ID сотрудника.</span>
+<span class="sd">        role: Роль сотрудника в БД.</span>
+<span class="sd">    """</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"admin"</span><span class="p">,</span> <span class="s2">"marshal"</span><span class="p">]</span></div>
@@ -372,6 +396,12 @@
 <div class="viewcode-block" id="RoleResponse">
 <a class="viewcode-back" href="../../../../user.html#app.features.user.schemas.RoleResponse">[документация]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RoleResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Ответ с ролью пользователя.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        role: Текущая роль из БД, admin, marshal или customer.</span>
+<span class="sd">    """</span>
+
     <span class="n">role</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"admin"</span><span class="p">,</span> <span class="s2">"marshal"</span><span class="p">,</span> <span class="s2">"customer"</span><span class="p">]</span></div>
 
 </pre></div>

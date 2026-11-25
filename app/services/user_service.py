@@ -48,23 +48,60 @@ class UserService:
         )
 
     async def signup_without_id(self, login: str, password: str) -> UserIdentity:
-        """Создаёт аккаунт для входа по email и хеширует пароль перед записью."""
+        """Создаёт аккаунт клиента для входа по email и паролю.
+
+        Args:
+            login: Email для входа.
+            password: Пароль, который будет сохранён в хешированном виде.
+
+        Returns:
+            Внутренний ID и системный UUID клиента.
+
+        Raises:
+            LoginAlreadyExistsError: Email уже занят.
+        """
         password_hash = await run_in_threadpool(password_hasher.hash, password)
         return await self.repository.create_customer(login=login, password_hash=password_hash)
 
     async def add_employee(self, login: str, password: str, role: str) -> UserIdentity:
-        """Хеширует пароль и создаёт учётную запись сотрудника с указанной ролью."""
+        """Создаёт аккаунт сотрудника и хеширует его пароль.
+
+        Args:
+            login: Email для входа.
+            password: Пароль нового сотрудника.
+            role: Имя существующей роли сотрудника.
+
+        Returns:
+            Внутренний ID и системный UUID сотрудника.
+
+        Raises:
+            LoginAlreadyExistsError: Email уже занят.
+        """
         password_hash = await run_in_threadpool(password_hasher.hash, password)
         return await self.repository.create_employee(
             login=login, password_hash=password_hash, role=role
         )
 
     async def get_role_name(self, user_id: int) -> str | None:
-        """Возвращает текущую роль пользователя."""
+        """Получает текущую роль пользователя.
+
+        Args:
+            user_id: Внутренний ID пользователя.
+
+        Returns:
+            Имя роли или None, если пользователь не найден.
+        """
         return await self.repository.get_role_name(user_id)
 
     async def is_admin(self, user_id: int) -> bool:
-        """Проверяет, есть ли у пользователя роль администратора."""
+        """Проверяет роль администратора.
+
+        Args:
+            user_id: Внутренний ID пользователя.
+
+        Returns:
+            True для пользователя с ролью admin, иначе False.
+        """
         return await self.get_role_name(user_id) == "admin"
 
     async def signup_with_id(self) -> UserIdentity:

@@ -35,6 +35,8 @@ extensions = [
 
 # Новый autodoc в Sphinx 9 повреждает аннотации Pydantic (sphinx-doc/sphinx#14337).
 autodoc_use_legacy_class_based = True
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
 
 templates_path = ['_templates']
 exclude_patterns = ['build']

@@ -192,17 +192,23 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../modules.html">app</a><input aria-label="Toggle navigation of app" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../config.html">Настройки и модели БД</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../jwt_tokens.html">Токены доступа и обновления</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../repositories.html">Репозитории</a><input aria-label="Toggle navigation of Репозитории" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../user_repository.html">Репозиторий пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../info_repository.html">Репозиторий картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cart_repository.html">Репозиторий картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../services.html">Сервисы</a><input aria-label="Toggle navigation of Сервисы" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../user_service.html">Сервис пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../info_service.html">Сервис картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cart_service.html">Сервис картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../features.html">Маршруты</a><input aria-label="Toggle navigation of Маршруты" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../user.html">API пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../info.html">API картинг-центра</a></li>
 </ul>
 </li>
 </ul>
@@ -297,7 +303,18 @@
 <div class="viewcode-block" id="UserService.signup_without_id">
 <a class="viewcode-back" href="../../../user_service.html#app.services.user_service.UserService.signup_without_id">[документация]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">signup_without_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">login</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UserIdentity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Создаёт аккаунт для входа по email и хеширует пароль перед записью."""</span>
+<span class="w">        </span><span class="sd">"""Создаёт аккаунт клиента для входа по email и паролю.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            login: Email для входа.</span>
+<span class="sd">            password: Пароль, который будет сохранён в хешированном виде.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Внутренний ID и системный UUID клиента.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            LoginAlreadyExistsError: Email уже занят.</span>
+<span class="sd">        """</span>
         <span class="n">password_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">run_in_threadpool</span><span class="p">(</span><span class="n">password_hasher</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">create_customer</span><span class="p">(</span><span class="n">login</span><span class="o">=</span><span class="n">login</span><span class="p">,</span> <span class="n">password_hash</span><span class="o">=</span><span class="n">password_hash</span><span class="p">)</span></div>
 
@@ -305,7 +322,19 @@
 <div class="viewcode-block" id="UserService.add_employee">
 <a class="viewcode-back" href="../../../user_service.html#app.services.user_service.UserService.add_employee">[документация]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">add_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">login</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UserIdentity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Хеширует пароль и создаёт учётную запись сотрудника с указанной ролью."""</span>
+<span class="w">        </span><span class="sd">"""Создаёт аккаунт сотрудника и хеширует его пароль.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            login: Email для входа.</span>
+<span class="sd">            password: Пароль нового сотрудника.</span>
+<span class="sd">            role: Имя существующей роли сотрудника.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Внутренний ID и системный UUID сотрудника.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            LoginAlreadyExistsError: Email уже занят.</span>
+<span class="sd">        """</span>
         <span class="n">password_hash</span> <span class="o">=</span> <span class="k">await</span> <span class="n">run_in_threadpool</span><span class="p">(</span><span class="n">password_hasher</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">create_employee</span><span class="p">(</span>
             <span class="n">login</span><span class="o">=</span><span class="n">login</span><span class="p">,</span> <span class="n">password_hash</span><span class="o">=</span><span class="n">password_hash</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span>
@@ -315,14 +344,28 @@
 <div class="viewcode-block" id="UserService.get_role_name">
 <a class="viewcode-back" href="../../../user_service.html#app.services.user_service.UserService.get_role_name">[документация]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_role_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Возвращает текущую роль пользователя."""</span>
+<span class="w">        </span><span class="sd">"""Получает текущую роль пользователя.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            user_id: Внутренний ID пользователя.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Имя роли или None, если пользователь не найден.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">get_role_name</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="UserService.is_admin">
 <a class="viewcode-back" href="../../../user_service.html#app.services.user_service.UserService.is_admin">[документация]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">is_admin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Проверяет, есть ли у пользователя роль администратора."""</span>
+<span class="w">        </span><span class="sd">"""Проверяет роль администратора.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            user_id: Внутренний ID пользователя.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True для пользователя с ролью admin, иначе False.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_role_name</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"admin"</span></div>
 
 

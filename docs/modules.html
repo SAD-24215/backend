@@ -197,14 +197,19 @@
 <li class="toctree-l2"><a class="reference internal" href="jwt_tokens.html">Токены доступа и обновления</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="repositories.html">Репозитории</a><input aria-label="Toggle navigation of Репозитории" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user_repository.html">Репозиторий пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_repository.html">Репозиторий картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_repository.html">Репозиторий картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="services.html">Сервисы</a><input aria-label="Toggle navigation of Сервисы" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user_service.html">Сервис пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_service.html">Сервис картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_service.html">Сервис картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="features.html">Маршруты</a><input aria-label="Toggle navigation of Маршруты" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user.html">API пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">API картинг-центра</a></li>
 </ul>
 </li>
 </ul>
@@ -388,6 +393,27 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="info_repository.html">Репозиторий картинг-центра</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="info_repository.html#app.repositories.info_repository.InfoRepository"><code class="docutils literal notranslate"><span class="pre">InfoRepository</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="info_repository.html#app.repositories.info_repository.InfoRepository.get_info"><code class="docutils literal notranslate"><span class="pre">InfoRepository.get_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info_repository.html#app.repositories.info_repository.InfoRepository.get_cart_models"><code class="docutils literal notranslate"><span class="pre">InfoRepository.get_cart_models()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info_repository.html#app.repositories.info_repository.InfoRepository.update_info"><code class="docutils literal notranslate"><span class="pre">InfoRepository.update_info()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cart_repository.html">Репозиторий картов</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cart_repository.html#app.repositories.cart_repository.CartRepository"><code class="docutils literal notranslate"><span class="pre">CartRepository</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cart_repository.html#app.repositories.cart_repository.CartRepository.add_cart"><code class="docutils literal notranslate"><span class="pre">CartRepository.add_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_repository.html#app.repositories.cart_repository.CartRepository.delete_cart"><code class="docutils literal notranslate"><span class="pre">CartRepository.delete_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_repository.html#app.repositories.cart_repository.CartRepository.update_cart"><code class="docutils literal notranslate"><span class="pre">CartRepository.update_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_repository.html#app.repositories.cart_repository.CartRepository.add_cart_model"><code class="docutils literal notranslate"><span class="pre">CartRepository.add_cart_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_repository.html#app.repositories.cart_repository.CartRepository.delete_cart_model"><code class="docutils literal notranslate"><span class="pre">CartRepository.delete_cart_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_repository.html#app.repositories.cart_repository.CartRepository.update_cart_model"><code class="docutils literal notranslate"><span class="pre">CartRepository.update_cart_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="services.html">Сервисы</a><ul>
@@ -405,17 +431,43 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="info_service.html">Сервис картинг-центра</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="info_service.html#app.services.info_service.InfoService"><code class="docutils literal notranslate"><span class="pre">InfoService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="info_service.html#app.services.info_service.InfoService.get_info"><code class="docutils literal notranslate"><span class="pre">InfoService.get_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info_service.html#app.services.info_service.InfoService.get_cart_models"><code class="docutils literal notranslate"><span class="pre">InfoService.get_cart_models()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info_service.html#app.services.info_service.InfoService.update_info"><code class="docutils literal notranslate"><span class="pre">InfoService.update_info()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cart_service.html">Сервис картов</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cart_service.html#app.services.cart_service.CartService"><code class="docutils literal notranslate"><span class="pre">CartService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cart_service.html#app.services.cart_service.CartService.add_cart"><code class="docutils literal notranslate"><span class="pre">CartService.add_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_service.html#app.services.cart_service.CartService.delete_cart"><code class="docutils literal notranslate"><span class="pre">CartService.delete_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_service.html#app.services.cart_service.CartService.update_cart"><code class="docutils literal notranslate"><span class="pre">CartService.update_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_service.html#app.services.cart_service.CartService.add_cart_model"><code class="docutils literal notranslate"><span class="pre">CartService.add_cart_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_service.html#app.services.cart_service.CartService.delete_cart_model"><code class="docutils literal notranslate"><span class="pre">CartService.delete_cart_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cart_service.html#app.services.cart_service.CartService.update_cart_model"><code class="docutils literal notranslate"><span class="pre">CartService.update_cart_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="features.html">Маршруты</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="features.html#app.features.auto_register_routers"><code class="docutils literal notranslate"><span class="pre">auto_register_routers()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="user.html">API пользователей</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user.html#id1">Регистрация и вход</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user.html#id2">Обновление токенов</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user.html#id3">Роли и сотрудники</a></li>
 <li class="toctree-l3"><a class="reference internal" href="user.html#module-app.features.user.route">Эндпоинты</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.route.get_refresh_token"><code class="docutils literal notranslate"><span class="pre">get_refresh_token()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.route.signup_classic"><code class="docutils literal notranslate"><span class="pre">signup_classic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.route.login_classic"><code class="docutils literal notranslate"><span class="pre">login_classic()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.route.login_with_id"><code class="docutils literal notranslate"><span class="pre">login_with_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.route.signup_with_id"><code class="docutils literal notranslate"><span class="pre">signup_with_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.route.get_refresh_token_route"><code class="docutils literal notranslate"><span class="pre">get_refresh_token_route()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.route.add_employee"><code class="docutils literal notranslate"><span class="pre">add_employee()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.route.get_role"><code class="docutils literal notranslate"><span class="pre">get_role()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="user.html#module-app.features.user.schemas">Схемы запросов и ответов</a><ul>
@@ -429,6 +481,33 @@
 <li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.schemas.RefreshAccessTokenResponse"><code class="docutils literal notranslate"><span class="pre">RefreshAccessTokenResponse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.schemas.TokenResponse"><code class="docutils literal notranslate"><span class="pre">TokenResponse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="user.html#app.features.user.schemas.RoleResponse"><code class="docutils literal notranslate"><span class="pre">RoleResponse</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="info.html">API картинг-центра</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="info.html#id1">Данные центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html#id2">Карты и модели</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html#module-app.features.info.route">Эндпоинты</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.route.get_info"><code class="docutils literal notranslate"><span class="pre">get_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.route.update_info"><code class="docutils literal notranslate"><span class="pre">update_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.route.add_cart"><code class="docutils literal notranslate"><span class="pre">add_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.route.delete_cart"><code class="docutils literal notranslate"><span class="pre">delete_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.route.update_cart"><code class="docutils literal notranslate"><span class="pre">update_cart()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.route.add_cart_model"><code class="docutils literal notranslate"><span class="pre">add_cart_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.route.delete_cart_model"><code class="docutils literal notranslate"><span class="pre">delete_cart_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.route.update_cart_model"><code class="docutils literal notranslate"><span class="pre">update_cart_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="info.html#module-app.features.info.schemas">Схемы запросов и ответов</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.schemas.CartModel"><code class="docutils literal notranslate"><span class="pre">CartModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.schemas.CartingData"><code class="docutils literal notranslate"><span class="pre">CartingData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.schemas.CartingResponse"><code class="docutils literal notranslate"><span class="pre">CartingResponse</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.schemas.CartingPayload"><code class="docutils literal notranslate"><span class="pre">CartingPayload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.schemas.AddCartPayload"><code class="docutils literal notranslate"><span class="pre">AddCartPayload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.schemas.UpdateCartPayload"><code class="docutils literal notranslate"><span class="pre">UpdateCartPayload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.schemas.AddCartModelPayload"><code class="docutils literal notranslate"><span class="pre">AddCartModelPayload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="info.html#app.features.info.schemas.UpdateCartModelPayload"><code class="docutils literal notranslate"><span class="pre">UpdateCartModelPayload</span></code></a></li>
 </ul>
 </li>
 </ul>

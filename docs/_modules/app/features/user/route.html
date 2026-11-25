@@ -196,14 +196,19 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../jwt_tokens.html">Токены доступа и обновления</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../repositories.html">Репозитории</a><input aria-label="Toggle navigation of Репозитории" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../user_repository.html">Репозиторий пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../info_repository.html">Репозиторий картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cart_repository.html">Репозиторий картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../services.html">Сервисы</a><input aria-label="Toggle navigation of Сервисы" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../user_service.html">Сервис пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../info_service.html">Сервис картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cart_service.html">Сервис картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../features.html">Маршруты</a><input aria-label="Toggle navigation of Маршруты" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../user.html">API пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../info.html">API картинг-центра</a></li>
 </ul>
 </li>
 </ul>
@@ -241,7 +246,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Исходный код app.features.user.route</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""Эндпоинты регистрации, входа, обновления токенов и создания сотрудников."""</span>
+<span></span><span class="sd">"""Эндпоинты регистрации, входа, обновления токенов и управления ролями."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceil</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">time</span>
@@ -310,7 +315,18 @@
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_user_id</span><span class="p">(</span>
     <span class="n">credentials</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">HTTPAuthorizationCredentials</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Depends</span><span class="p">(</span><span class="n">access_bearer</span><span class="p">)],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Проверяет access-токен и возвращает ID пользователя из JWT."""</span>
+<span class="w">    </span><span class="sd">"""Получает ID пользователя из действительного access-токена.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        credentials: Заголовок Bearer, обработанный FastAPI.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Внутренний ID пользователя из поля sub.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HTTPException: HTTP 401 при отсутствующем или недействительном токене,</span>
+<span class="sd">            HTTP 503 при отсутствующем ключе подписи.</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">credentials</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
             <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
@@ -341,7 +357,15 @@
     <span class="n">user_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user_id</span><span class="p">)],</span>
     <span class="n">service</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">UserService</span><span class="p">,</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_user_service</span><span class="p">)],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Проверяет текущую роль пользователя в БД."""</span>
+<span class="w">    </span><span class="sd">"""Проверяет доступ администратора.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user_id: Внутренний ID пользователя из проверенного access-токена.</span>
+<span class="sd">        service: Сервис чтения текущей роли из БД.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HTTPException: HTTP 403, если у пользователя нет роли admin.</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">is_admin</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
             <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">,</span>
@@ -358,6 +382,9 @@
 <span class="sd">        identity: Внутренний и системный идентификаторы пользователя.</span>
 <span class="sd">        secret_key: Ключ подписи access-токена.</span>
 <span class="sd">        redis: Клиент для сохранения refresh-токена.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Access-токен, refresh-токен и системный ID аккаунта.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        HTTPException: HTTP 503 при ошибке Redis.</span>
@@ -388,11 +415,17 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TokenResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Регистрирует новый аккаунт или привязывает email и пароль по системному ID.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        payload: Email, пароль и необязательный системный ID аккаунта.</span>
+<span class="sd">        service: Сервис регистрации пользователей.</span>
+<span class="sd">        redis: Хранилище refresh-токенов.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Пара токенов и системный ID пользователя.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HTTPException: HTTP 401 при неверном системном ID или HTTP 409 при конфликте.</span>
+<span class="sd">        HTTPException: HTTP 401 при неизвестном системном ID, HTTP 409 при</span>
+<span class="sd">            конфликте учётных данных или HTTP 503 при ошибке Redis.</span>
 <span class="sd">    """</span>
     <span class="n">secret_key</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">jwt_secret_key</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">()</span>
     <span class="n">password</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">()</span>
@@ -427,6 +460,9 @@
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">limit_login_attempts</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Ограничивает вход пятью запросами в минуту на IP и маршрут.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        request: Запрос, из которого берутся IP клиента и путь.</span>
+
 <span class="sd">    Raises:</span>
 <span class="sd">        HTTPException: HTTP 429 с заголовком Retry-After при превышении лимита.</span>
 <span class="sd">    """</span>
@@ -452,8 +488,17 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TokenResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Проверяет email и пароль и выдаёт пару токенов и системный ID.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        payload: Email и пароль для входа.</span>
+<span class="sd">        service: Сервис проверки учётных данных.</span>
+<span class="sd">        redis: Хранилище refresh-токенов.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Пара токенов и системный ID пользователя.</span>
+
 <span class="sd">    Raises:</span>
-<span class="sd">        HTTPException: HTTP 401 при неверном email или пароле.</span>
+<span class="sd">        HTTPException: HTTP 401 при неверном email или пароле, HTTP 503</span>
+<span class="sd">            при ошибке Redis.</span>
 <span class="sd">    """</span>
     <span class="n">secret_key</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">jwt_secret_key</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">()</span>
 
@@ -480,8 +525,17 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TokenResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Проверяет системный ID и выдаёт пару токенов.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        payload: Системный ID аккаунта.</span>
+<span class="sd">        service: Сервис поиска аккаунта по системному ID.</span>
+<span class="sd">        redis: Хранилище refresh-токенов.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Пара токенов и системный ID пользователя.</span>
+
 <span class="sd">    Raises:</span>
-<span class="sd">        HTTPException: HTTP 401, если вход по указанному ID недоступен.</span>
+<span class="sd">        HTTPException: HTTP 401 при неизвестном системном ID, HTTP 503</span>
+<span class="sd">            при ошибке Redis.</span>
 <span class="sd">    """</span>
     <span class="n">secret_key</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">jwt_secret_key</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">()</span>
     <span class="n">identity</span> <span class="o">=</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">authenticate_with_id</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">system_id</span><span class="p">))</span>
@@ -503,8 +557,15 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TokenResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Создаёт аккаунт без email и пароля.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        service: Сервис регистрации пользователей.</span>
+<span class="sd">        redis: Хранилище refresh-токенов.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Пара токенов и новый системный ID.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HTTPException: HTTP 503 при ошибке Redis.</span>
 <span class="sd">    """</span>
     <span class="n">secret_key</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">jwt_secret_key</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">()</span>
     <span class="n">identity</span> <span class="o">=</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">signup_with_id</span><span class="p">()</span>
@@ -512,11 +573,17 @@
 
 
 
+<div class="viewcode-block" id="get_refresh_token_route">
+<a class="viewcode-back" href="../../../../user.html#app.features.user.route.get_refresh_token_route">[документация]</a>
 <span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/api/v1/tokens/refresh"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_refresh_token_route</span><span class="p">(</span>
     <span class="n">payload</span><span class="p">:</span> <span class="n">TokenPayload</span><span class="p">,</span> <span class="n">redis</span><span class="p">:</span> <span class="n">RedisClient</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RefreshAccessTokenResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Обменивает действующий одноразовый refresh-токен на новую пару.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        payload: Текущий refresh-токен.</span>
+<span class="sd">        redis: Хранилище refresh-токенов.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Access-токен и новый refresh-токен.</span>
@@ -545,9 +612,12 @@
     <span class="k">return</span> <span class="n">RefreshAccessTokenResponse</span><span class="p">(</span>
         <span class="n">access_token</span><span class="o">=</span><span class="n">create_access_token</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">secret_key</span><span class="o">=</span><span class="n">secret_key</span><span class="p">),</span>
         <span class="n">refresh_token</span><span class="o">=</span><span class="n">refresh_token</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
 
 
+
+<div class="viewcode-block" id="add_employee">
+<a class="viewcode-back" href="../../../../user.html#app.features.user.route.add_employee">[документация]</a>
 <span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
     <span class="s2">"/api/v1/users/employee"</span><span class="p">,</span>
     <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_201_CREATED</span><span class="p">,</span>
@@ -559,12 +629,15 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EmployeeResponse</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Создаёт сотрудника по email и паролю с новым системным UUID.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        payload: Email, пароль и роль сотрудника.</span>
+<span class="sd">        service: Сервис создания сотрудников.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Внутренний ID и роль сотрудника.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HTTPException: HTTP 401 при недействительном токене, HTTP 403 при отсутствии</span>
-<span class="sd">            роли администратора или HTTP 409, если email уже занят.</span>
+<span class="sd">        HTTPException: HTTP 409, если email уже занят.</span>
 <span class="sd">    """</span>
     <span class="n">role</span> <span class="o">=</span> <span class="s2">"marshal"</span> <span class="k">if</span> <span class="n">payload</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s2">"marshall"</span> <span class="k">else</span> <span class="n">payload</span><span class="o">.</span><span class="n">role</span>
     <span class="k">try</span><span class="p">:</span>
@@ -577,15 +650,29 @@
             <span class="n">detail</span><span class="o">=</span><span class="s2">"Login already exists"</span><span class="p">,</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
-    <span class="k">return</span> <span class="n">EmployeeResponse</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">identity</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">EmployeeResponse</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">identity</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">)</span></div>
 
 
+
+<div class="viewcode-block" id="get_role">
+<a class="viewcode-back" href="../../../../user.html#app.features.user.route.get_role">[документация]</a>
 <span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/api/v1/roles"</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_role</span><span class="p">(</span>
     <span class="n">user_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user_id</span><span class="p">)],</span>
     <span class="n">service</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">UserService</span><span class="p">,</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_user_service</span><span class="p">)],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RoleResponse</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Возвращает текущую роль пользователя из БД."""</span>
+<span class="w">    </span><span class="sd">"""Читает текущую роль пользователя из БД.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user_id: Внутренний ID пользователя из проверенного access-токена.</span>
+<span class="sd">        service: Сервис чтения роли пользователя.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Ответ с ролью admin, marshal или customer.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HTTPException: HTTP 401, если аккаунт больше не найден.</span>
+<span class="sd">    """</span>
     <span class="n">role</span> <span class="o">=</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">get_role_name</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">role</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
@@ -593,7 +680,8 @@
             <span class="n">detail</span><span class="o">=</span><span class="s2">"User not found"</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">"WWW-Authenticate"</span><span class="p">:</span> <span class="s2">"Bearer"</span><span class="p">},</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">RoleResponse</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span><span class="s2">"role"</span><span class="p">:</span> <span class="n">role</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">RoleResponse</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span><span class="s2">"role"</span><span class="p">:</span> <span class="n">role</span><span class="p">})</span></div>
+
 </pre></div>
         </article>
       </div>

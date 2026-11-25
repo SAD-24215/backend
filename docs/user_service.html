@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="Маршруты" href="features.html"><link rel="prev" title="Сервисы" href="services.html">
+<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="Сервис картинг-центра" href="info_service.html"><link rel="prev" title="Сервисы" href="services.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>Сервис пользователей - документация Carting Docs</title>
@@ -197,14 +197,19 @@
 <li class="toctree-l2"><a class="reference internal" href="jwt_tokens.html">Токены доступа и обновления</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="repositories.html">Репозитории</a><input aria-label="Toggle navigation of Репозитории" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user_repository.html">Репозиторий пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_repository.html">Репозиторий картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_repository.html">Репозиторий картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="services.html">Сервисы</a><input aria-label="Toggle navigation of Сервисы" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Сервис пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info_service.html">Сервис картинг-центра</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cart_service.html">Сервис картов</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="features.html">Маршруты</a><input aria-label="Toggle navigation of Маршруты" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="user.html">API пользователей</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">API картинг-центра</a></li>
 </ul>
 </li>
 </ul>
@@ -243,9 +248,13 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-app.services.user_service">
-<span id="id1"></span><h1>Сервис пользователей<a class="headerlink" href="#module-app.services.user_service" title="Ссылка на этот заголовок">¶</a></h1>
-<p>Регистрация и проверка учётных данных пользователей.</p>
+          <section id="id1">
+<h1>Сервис пользователей<a class="headerlink" href="#id1" title="Ссылка на этот заголовок">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">UserService</span></code> хеширует пароли при регистрации и создании сотрудников,
+проверяет учётные данные при входе и получает текущую роль через репозиторий.
+Успешная проверка учётных данных возвращает <code class="docutils literal notranslate"><span class="pre">UserIdentity</span></code>, который используется
+для выдачи токенов в API.</p>
+<p id="module-app.services.user_service">Регистрация и проверка учётных данных пользователей.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="app.services.user_service.UserService">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">app.services.user_service.</span></span><span class="sig-name descname"><span class="pre">UserService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="user_repository.html#app.repositories.user_repository.UserRepository" title="app.repositories.user_repository.UserRepository"><span class="pre">UserRepository</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/services/user_service.html#UserService"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.services.user_service.UserService" title="Ссылка на это определение">¶</a></dt>
@@ -279,25 +288,70 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="app.services.user_service.UserService.signup_without_id">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">signup_without_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">login</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UserIdentity</span></span></span><a class="reference internal" href="_modules/app/services/user_service.html#UserService.signup_without_id"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.services.user_service.UserService.signup_without_id" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Создаёт аккаунт для входа по email и хеширует пароль перед записью.</p>
+<dd><p>Создаёт аккаунт клиента для входа по email и паролю.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>login</strong> – Email для входа.</p></li>
+<li><p><strong>password</strong> – Пароль, который будет сохранён в хешированном виде.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Внутренний ID и системный UUID клиента.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>LoginAlreadyExistsError</strong> – Email уже занят.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="app.services.user_service.UserService.add_employee">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">add_employee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">login</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">UserIdentity</span></span></span><a class="reference internal" href="_modules/app/services/user_service.html#UserService.add_employee"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.services.user_service.UserService.add_employee" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Хеширует пароль и создаёт учётную запись сотрудника с указанной ролью.</p>
+<dd><p>Создаёт аккаунт сотрудника и хеширует его пароль.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>login</strong> – Email для входа.</p></li>
+<li><p><strong>password</strong> – Пароль нового сотрудника.</p></li>
+<li><p><strong>role</strong> – Имя существующей роли сотрудника.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Внутренний ID и системный UUID сотрудника.</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>LoginAlreadyExistsError</strong> – Email уже занят.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="app.services.user_service.UserService.get_role_name">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_role_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/app/services/user_service.html#UserService.get_role_name"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.services.user_service.UserService.get_role_name" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Возвращает текущую роль пользователя.</p>
+<dd><p>Получает текущую роль пользователя.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> – Внутренний ID пользователя.</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Имя роли или None, если пользователь не найден.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="app.services.user_service.UserService.is_admin">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_admin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/app/services/user_service.html#UserService.is_admin"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#app.services.user_service.UserService.is_admin" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Проверяет, есть ли у пользователя роль администратора.</p>
+<dd><p>Проверяет роль администратора.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> – Внутренний ID пользователя.</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>True для пользователя с ролью admin, иначе False.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -351,12 +405,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="features.html">
+          <a class="next-page" href="info_service.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Маршруты</div>
+                <div class="title">Сервис картинг-центра</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

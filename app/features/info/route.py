@@ -1,3 +1,5 @@
+"""Данные картинг-центра, управление картами и их моделями."""
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
@@ -33,24 +35,28 @@ router = APIRouter(tags=["info"])
 def get_info_repository(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> InfoRepository:
+    """Создаёт репозиторий данных центра с сессией текущего запроса."""
     return InfoRepository(session)
 
 
 def get_info_service(
     repository: Annotated[InfoRepository, Depends(get_info_repository)],
 ) -> InfoService:
+    """Создаёт сервис картинг-центра для текущего запроса."""
     return InfoService(repository)
 
 
 def get_cart_repository(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> CartRepository:
+    """Создаёт репозиторий картов с сессией текущего запроса."""
     return CartRepository(session)
 
 
 def get_cart_service(
     repository: Annotated[CartRepository, Depends(get_cart_repository)],
 ) -> CartService:
+    """Создаёт сервис картов для текущего запроса."""
     return CartService(repository)
 
 
@@ -86,6 +92,17 @@ async def _info_response(
 async def get_info(
     service: Annotated[InfoService, Depends(get_info_service)],
 ) -> CartingResponse:
+    """Возвращает данные картинг-центра.
+
+    Args:
+        service: Сервис чтения данных центра и прайс-листа.
+
+    Returns:
+        Адрес, правила и прайс-лист моделей картов.
+
+    Raises:
+        HTTPException: HTTP 404, если записи о центре нет.
+    """
     return await _info_response(await service.get_info(), service)
 
 
@@ -93,6 +110,18 @@ async def get_info(
 async def update_info(
     payload: CartingPayload, service: Annotated[InfoService, Depends(get_info_service)]
 ) -> CartingResponse:
+    """Обновляет адрес и правила центра.
+
+    Args:
+        payload: Новые адрес и правила.
+        service: Сервис обновления данных центра.
+
+    Returns:
+        Обновлённые данные центра и текущий прайс-лист.
+
+    Raises:
+        HTTPException: HTTP 404, если записи о центре нет.
+    """
     info = await service.update_info(address=payload.address, rules=payload.rules)
     return await _info_response(info, service)
 
@@ -109,7 +138,21 @@ async def add_cart(
     service: Annotated[CartService, Depends(get_cart_service)],
     info_service: Annotated[InfoService, Depends(get_info_service)],
 ) -> CartingResponse:
-    """Добавляет карт и возвращает обновлённую информацию о центре."""
+    """Добавляет карт выбранной модели.
+
+    Args:
+        payload: Идентификатор модели и доступность нового карта.
+        response: Ответ для установки заголовка Location с ID карта.
+        session: Сессия для транзакции запроса.
+        service: Сервис создания карта.
+        info_service: Сервис формирования обновлённого прайс-листа.
+
+    Returns:
+        Данные центра и прайс-лист с новым количеством картов.
+
+    Raises:
+        HTTPException: HTTP 404, если модель или запись о центре отсутствует.
+    """
     try:
         async with session.begin():
             cart_id = await service.add_cart(
@@ -136,7 +179,17 @@ async def delete_cart(
     session: Annotated[AsyncSession, Depends(get_session)],
     service: Annotated[CartService, Depends(get_cart_service)],
 ) -> None:
-    """Удаляет карт по ID."""
+    """Удаляет карт по ID и возвращает HTTP 204.
+
+    Args:
+        cart_id: Идентификатор удаляемого карта.
+        session: Сессия для транзакции запроса.
+        service: Сервис удаления карта.
+
+    Raises:
+        HTTPException: HTTP 404, если карта нет, или HTTP 409,
+            если он связан с заездом.
+    """
     try:
         async with session.begin():
             if not await service.delete_cart(cart_id):
@@ -160,7 +213,21 @@ async def update_cart(
     service: Annotated[CartService, Depends(get_cart_service)],
     info_service: Annotated[InfoService, Depends(get_info_service)],
 ) -> CartingResponse:
-    """Обновляет карт и возвращает информацию о центре."""
+    """Обновляет модель и доступность карта.
+
+    Args:
+        payload: ID карта, ID модели и новое значение доступности.
+        session: Сессия для транзакции запроса.
+        service: Сервис обновления карта.
+        info_service: Сервис формирования обновлённого прайс-листа.
+
+    Returns:
+        Данные центра и прайс-лист после обновления.
+
+    Raises:
+        HTTPException: HTTP 404, если карт, модель или запись о центре
+            отсутствуют.
+    """
     try:
         async with session.begin():
             updated = await service.update_cart(
@@ -191,7 +258,21 @@ async def add_cart_model(
     service: Annotated[CartService, Depends(get_cart_service)],
     info_service: Annotated[InfoService, Depends(get_info_service)],
 ) -> CartingResponse:
-    """Добавляет модель карта и возвращает обновлённый прайс-лист."""
+    """Добавляет модель карта.
+
+    Args:
+        payload: Название, описание и цена модели.
+        response: Ответ для установки заголовка Location с ID модели.
+        session: Сессия для транзакции запроса.
+        service: Сервис создания модели.
+        info_service: Сервис формирования обновлённого прайс-листа.
+
+    Returns:
+        Данные центра и прайс-лист с новой моделью.
+
+    Raises:
+        HTTPException: HTTP 404, если записи о центре нет.
+    """
     async with session.begin():
         cart_model_id = await service.add_cart_model(
             name=payload.name, description=payload.description, price=payload.price
@@ -213,7 +294,17 @@ async def delete_cart_model(
     session: Annotated[AsyncSession, Depends(get_session)],
     service: Annotated[CartService, Depends(get_cart_service)],
 ) -> None:
-    """Удаляет модель карты по ID."""
+    """Удаляет модель карта и возвращает HTTP 204.
+
+    Args:
+        cart_model_id: Идентификатор удаляемой модели.
+        session: Сессия для транзакции запроса.
+        service: Сервис удаления модели.
+
+    Raises:
+        HTTPException: HTTP 404, если модели нет, или HTTP 409,
+            если к ней привязаны карты.
+    """
     try:
         async with session.begin():
             if not await service.delete_cart_model(cart_model_id):
@@ -237,7 +328,20 @@ async def update_cart_model(
     service: Annotated[CartService, Depends(get_cart_service)],
     info_service: Annotated[InfoService, Depends(get_info_service)],
 ) -> CartingResponse:
-    """Обновляет модель карта и возвращает обновлённый прайс-лист."""
+    """Обновляет модель карта в прайс-листе.
+
+    Args:
+        payload: ID модели и её новые название, описание и цена.
+        session: Сессия для транзакции запроса.
+        service: Сервис обновления модели.
+        info_service: Сервис формирования обновлённого прайс-листа.
+
+    Returns:
+        Данные центра и прайс-лист с обновлённой моделью.
+
+    Raises:
+        HTTPException: HTTP 404, если модель или запись о центре отсутствует.
+    """
     async with session.begin():
         updated = await service.update_cart_model(
             payload.id,
